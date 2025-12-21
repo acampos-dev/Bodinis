@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36811.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bodinis.Infraestructura", "Bodinis.Infraestructura\Bodinis.Infraestructura.csproj", "{CEDC9ED4-72FA-45F2-9D7E-386EFE571425}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16} = {0C48EFFA-6743-41C4-9A6F-77AF07D49F16}
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46} = {7E34CE06-C63A-40FD-B623-82BEED5E3A46}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bodinis.LogicaNegocio", "Bodinis.LogicaNegocio\Bodinis.LogicaNegocio.csproj", "{7E34CE06-C63A-40FD-B623-82BEED5E3A46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bodinis.LogicaAplicacion", "Bodinis.LogicaAplicacion\Bodinis.LogicaAplicacion.csproj", "{0C48EFFA-6743-41C4-9A6F-77AF07D49F16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46} = {7E34CE06-C63A-40FD-B623-82BEED5E3A46}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bodinis.WebApp", "Bodinis.WebApp\Bodinis.WebApp.csproj", "{A2696EE7-B90D-4C29-A71A-FB9FF7BB4674}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16} = {0C48EFFA-6743-41C4-9A6F-77AF07D49F16}
+		{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5} = {B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bodinis.WebApi", "Bodinis.WebApi\Bodinis.WebApi.csproj", "{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16} = {0C48EFFA-6743-41C4-9A6F-77AF07D49F16}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CEDC9ED4-72FA-45F2-9D7E-386EFE571425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDC9ED4-72FA-45F2-9D7E-386EFE571425}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDC9ED4-72FA-45F2-9D7E-386EFE571425}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDC9ED4-72FA-45F2-9D7E-386EFE571425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E34CE06-C63A-40FD-B623-82BEED5E3A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C48EFFA-6743-41C4-9A6F-77AF07D49F16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2696EE7-B90D-4C29-A71A-FB9FF7BB4674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2696EE7-B90D-4C29-A71A-FB9FF7BB4674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2696EE7-B90D-4C29-A71A-FB9FF7BB4674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2696EE7-B90D-4C29-A71A-FB9FF7BB4674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B79AD1A5-FAD8-4184-A404-EBEB231D4AC5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7903E083-DBE3-4AC5-B0E3-F4E708933E62}
+	EndGlobalSection
+EndGlobal

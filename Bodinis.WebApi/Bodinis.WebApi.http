@@ -1,0 +1,6 @@
+@Bodinis.WebApi_HostAddress = http://localhost:5245
+
+GET {{Bodinis.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
