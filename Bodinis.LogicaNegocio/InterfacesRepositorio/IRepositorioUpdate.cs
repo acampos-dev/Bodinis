@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class ICajaRepository
+    public interface IRepositorioUpdate<T>
     {
+        void Update(T obj);
     }
 }

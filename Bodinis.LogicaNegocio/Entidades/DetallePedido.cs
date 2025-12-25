@@ -4,7 +4,7 @@ namespace Bodinis.LogicaNegocio.Entidades
 {
     public class DetallePedido
     {
-        public int Id { get; set }
+        public int Id { get; set; }
         public int Cantidad { get; set; }
         public int PrecioUnitario { get; set; }
         public int Subtotal { get; set; }

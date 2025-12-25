@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class IProductoRepository
+    internal class IRepositorioVenta
     {
     }
 }

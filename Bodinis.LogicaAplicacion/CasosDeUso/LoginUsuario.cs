@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bodinis.LogicaNegocio.InterfacesRepositorio
+namespace Bodinis.LogicaAplicacion.CasosDeUso
 {
-    internal class IPedidoRepository
+    internal class LoginUsuario
     {
     }
 }

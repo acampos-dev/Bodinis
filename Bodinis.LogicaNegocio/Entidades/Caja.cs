@@ -9,7 +9,7 @@ namespace Bodinis.LogicaNegocio.Entidades
         public int MontoApertura { get; set; }
         public int MontoCierre { get; set; }
         public ICollection<Venta> Ventas { get; set; }
-    }
+    
 
     public Caja() { } // Constructor para EF
 
