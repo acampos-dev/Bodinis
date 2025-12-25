@@ -1,12 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bodinis.LogicaAplicacion.DTOs.Usuarios;
+using Bodinis.LogicaAplicacion.Interfaces;
+using Bodinis.LogicaNegocio.Excepciones;
+using Bodinis.LogicaNegocio.InterfacesRepositorio;
+using Bodinis.LogicaNegocio.Vo;
 
 namespace Bodinis.LogicaAplicacion.CasosDeUso
 {
-    internal class LoginUsuario
+    public class LoginUsuario : ILogin<LoginRequestDto>
     {
+        private readonly IRepositorioUsuario _repositorioUsuario;
+        private readonly IJwtGenerator _jwtGenerator;
+        private readonly IPasswordHasher _passwordHasher;
+
+        public LoginUsuario(
+            IRepositorioUsuario repositorioUsuario,
+            IJwtGenerator jwtGenerator,
+            IPasswordHasher passwordHasher)
+        {
+            _repositorioUsuario = repositorioUsuario;
+            _jwtGenerator = jwtGenerator;
+            _passwordHasher = passwordHasher;
+        }
+
+        public string Execute(LoginRequestDto request)
+        {
+            var email = new VoEmail(request.Email);
+
+            var usuario = _repositorioUsuario.GetByEmail(email);
+            if (usuario == null)
+                throw new CredencialesInvalidasException();
+
+            var hash = _passwordHasher.Hash(request.Password);
+
+            usuario.ValidarLogin(hash);
+
+            return _jwtGenerator.Generar(usuario);
+        }
     }
 }

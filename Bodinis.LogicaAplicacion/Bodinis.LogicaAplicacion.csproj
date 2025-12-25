@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="DTOs\" />
+    <Folder Include="Mappers\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bodinis.LogicaNegocio\Bodinis.LogicaNegocio.csproj" />
   </ItemGroup>
 
 </Project>

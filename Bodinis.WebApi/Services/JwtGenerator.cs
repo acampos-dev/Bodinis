@@ -1,10 +1,10 @@
 ﻿using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.WepApi.Services;
-using Bodinis.LogicaAplicacion.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 
 namespace Libreria.WepApi.Services
 {
@@ -24,10 +24,10 @@ namespace Libreria.WepApi.Services
 
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
+                new Claim(ClaimTypes.Name, usuario.UserName),
                 new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.Rol),
-
-            // Podés agregar más claims como rol, nombre, etc.
+                new Claim(ClaimTypes.Role, usuario.RolUsuario),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bodinis.LogicaAplicacion.DTOs
+namespace Bodinis.LogicaAplicacion.DTOs.Usuarios
 {
     public record LoginReponseDTO(int UsuarioId,
                                   string NombreCompleto,
