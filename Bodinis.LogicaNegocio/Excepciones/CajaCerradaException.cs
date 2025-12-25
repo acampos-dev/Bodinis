@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Bodinis.LogicaNegocio.Excepciones
 {
-    internal class CajaCerradaException
+    public class CajaCerradaException: LogicaNegocioException
     {
+        public CajaCerradaException() { }
+        public CajaCerradaException(string message) : base(message) { }
     }
 }

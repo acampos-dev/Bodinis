@@ -1,25 +1,43 @@
 ﻿
 
+using Bodinis.LogicaNegocio.Vo;
+
 namespace Bodinis.LogicaNegocio.Entidades
 {
     public class Producto
     {
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public int Precio { get; set; }
+        public VoNombreProducto NombreProducto { get; set; }
+        public VoPrecio Precio { get; set; }
         public bool Disponible { get; set; }
         public int Stock { get; set; }
 
         public Producto() { } // Constructor vacio para EF
 
-        public Producto(string nombre, int precio, bool disponible, int stock)
+        public Producto(
+               VoNombreProducto nombreProducto, 
+               VoPrecio precio, 
+               bool disponible, 
+               int stock)
         {
-            Nombre = nombre;
+            NombreProducto = nombreProducto;
             Precio = precio;
             Disponible = disponible;
             Stock = stock;
+            Validar();
         }
 
-        
+        public void Validar()
+        {
+
+        }
+
+        public bool Equals(Producto? other)
+        {
+            if (other == null) return false;
+            return Id.Equals(other.Id);
+        }
+
+
     }
 }

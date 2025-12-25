@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Bodinis.LogicaNegocio.Vo
 {
@@ -19,16 +15,7 @@ namespace Bodinis.LogicaNegocio.Vo
             Direccion = direccion;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is VoDireccion other &&
-                   Direccion == other.Direccion;
-        }
-
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Direccion);
-        }
+       
+       
     }
 }
