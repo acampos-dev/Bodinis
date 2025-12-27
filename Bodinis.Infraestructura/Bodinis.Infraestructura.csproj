@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DbContext\" />
+    <Folder Include="AccesoDatos\Memoria\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bodinis.LogicaNegocio\Bodinis.LogicaNegocio.csproj" />
   </ItemGroup>
 
 </Project>

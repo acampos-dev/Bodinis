@@ -1,7 +1,8 @@
-﻿namespace Bodinis.LogicaAplicacion.Interfaces
+﻿using Bodinis.LogicaNegocio.Entidades;
+namespace Bodinis.LogicaAplicacion.Interfaces
 {
-    public interface IJwtGenerator<T>
+    public interface IJwtGenerator
     {
-        string GenerateToken(T usuario);
+        string GenerateToken(Usuario usuario);
     }
 }
