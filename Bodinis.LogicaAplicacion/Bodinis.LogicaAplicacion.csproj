@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.20" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Bodinis.LogicaNegocio\Bodinis.LogicaNegocio.csproj" />
   </ItemGroup>
 

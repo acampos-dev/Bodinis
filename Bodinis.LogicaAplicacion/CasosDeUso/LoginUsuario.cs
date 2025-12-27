@@ -34,7 +34,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso
 
             usuario.ValidarLogin(hash);
 
-            return _jwtGenerator.Generar(usuario);
+            return _jwtGenerator.GenerateToken(usuario);
         }
     }
 }
