@@ -34,6 +34,7 @@ namespace Bodinis.LogicaNegocio.Entidades
             PaswordHash = paswordHash;
             Activo = true;
             Rol = rolUsuario;
+            Validar();
         }
          
         public void Desactivar()
@@ -44,6 +45,7 @@ namespace Bodinis.LogicaNegocio.Entidades
         {
             Activo = true;
         }
+        public void Validar() { }
 
         public void ValidarLogin(string passwordHash)
         {

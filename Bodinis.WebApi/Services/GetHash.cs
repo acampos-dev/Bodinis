@@ -14,5 +14,10 @@ namespace Bodinis.WebApi.Services
             var hashBytes = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hashBytes);
         }
+        public bool Verify(string password, string hash)
+        {
+            var hashedPassword = Hash(password);
+            return hashedPassword == hash;
+        }
     }
 }

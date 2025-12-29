@@ -1,74 +1,127 @@
+using Bodinis.Infraestructura.AccesoDatos.EF;
+using Bodinis.Infraestructura.AccesoDatos.EF.Config;
+using Bodinis.Infraestructura.Repositorios;
 using Bodinis.LogicaAplicacion.CasosDeUso;
-using Bodinis.LogicaAplicacion.DTOs;
 using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.WebApi.Services;
-using Bodinis.WepApi.Services;
-using Libreria.WepApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
+var builder = WebApplication.CreateBuilder(args);
 
+// Controllers
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
-namespace Bodinis.WebApi
+// Swagger + JWT
+builder.Services.AddSwaggerGen(options =>
 {
-    public class Program
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
-        public static void Main(string[] args)
+        Title = "Bodini's API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            // DI
-            builder.Services.AddScoped<ILogin<LoginRequestDto>, LoginUsuario>();
-            builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
-            builder.Services.AddScoped<IPasswordHasher, GetHash>();
-            builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
-
-            // JWT Settings
-            builder.Services.Configure<JwtSettings>(
-                builder.Configuration.GetSection("JwtSettings"));
-
-            // Authentication
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    var jwtSettings = builder.Configuration
-                        .GetSection("JwtSettings")
-                        .Get<JwtSettings>();
-
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-                    };
-                });
-
-            var app = builder.Build();
-
-            if (app.Environment.IsDevelopment())
+            new OpenApiSecurityScheme
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
-            app.Run();
-
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
         }
-    }
+    });
+});
+
+
+// =======================
+// Infraestructura
+// =======================
+builder.Services.AddDbContext<BodinisContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Bodinis"))
+);
+
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+
+// =======================
+// Casos de Uso
+// =======================
+builder.Services.AddScoped<ILogin<LoginRequestDto>, LoginUsuario>();
+
+// =======================
+// Seguridad JWT
+// =======================
+
+// =======================
+// Seguridad JWT
+// =======================
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt")
+);
+
+builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+var jwtSettings = builder.Configuration
+    .GetSection("Jwt")
+    .Get<JwtSettings>();
+
+var key = Encoding.ASCII.GetBytes(jwtSettings.Key);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+
+var app = builder.Build();
+
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.Run();

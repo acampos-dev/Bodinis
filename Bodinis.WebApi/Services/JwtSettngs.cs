@@ -1,4 +1,4 @@
-﻿namespace Bodinis.WepApi.Services
+﻿namespace Bodinis.WebApi.Services
 {
     public class JwtSettings
     {

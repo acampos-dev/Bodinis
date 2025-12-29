@@ -2,7 +2,7 @@
 
 namespace Bodinis.Infraestructura.AccesoDatos.Excepciones
 {
-    public class BadRequestException: InfraestructuraExceptions
+    public class BadRequestException: InfraestructuraException
     {
         public BadRequestException() 
         {

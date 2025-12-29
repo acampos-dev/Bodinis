@@ -1,33 +1,34 @@
-﻿using Bodinis.LogicaAplicacion.Interfaces;
-using Bodinis.WepApi.Services;
+﻿using Bodinis.LogicaAplicacion.DTOs.Usuarios;
+using Bodinis.LogicaAplicacion.Interfaces;
+using Bodinis.LogicaNegocio.Entidades;
+using Bodinis.WebApi.Services;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 
-namespace Libreria.WepApi.Services
+namespace Bodinis.WebApi.Services
 {
-    public class JwtGenerator : IJwtGenerator<LoginReponseDTO>
+    public class JwtGenerator : IJwtGenerator
     {
-
         private readonly JwtSettings _settings;
 
-        public JwtGenerator(JwtSettings settings)
+        public JwtGenerator(IOptions<JwtSettings> options)
         {
-            _settings = settings;
+            _settings = options.Value;
         }
 
-        public string GenerateToken(LoginReponseDTO usuario)
+        public string GenerateToken(Usuario usuario)
         {
             var key = Encoding.UTF8.GetBytes(_settings.Key);
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
-                new Claim(ClaimTypes.Name, usuario.UserName),
-                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.RolUsuario),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.UserName ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.Email, usuario.Email?.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

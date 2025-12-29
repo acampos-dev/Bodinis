@@ -23,11 +23,11 @@ namespace Bodinis.WebApi.Controllers
             try
             {
                 var token = _login.Execute(request);
-                return Ok(token);
+                return Ok(new { token });
             }
             catch (UsuarioInactivoException e)
             {
-                return Unauthorized(e.Message);
+                return StatusCode(403, new { mensaje = e.Message });
             }
             catch (CredencialesInvalidasException e)
             {
