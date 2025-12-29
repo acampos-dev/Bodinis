@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="AccesoDatos\Memoria\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

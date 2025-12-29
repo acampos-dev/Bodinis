@@ -1,6 +1,5 @@
 using Bodinis.Infraestructura.AccesoDatos.EF;
-using Bodinis.Infraestructura.AccesoDatos.EF.Config;
-using Bodinis.Infraestructura.Repositorios;
+using Bodinis.Infraestructura.AccesoDatos.EF.Seed;
 using Bodinis.LogicaAplicacion.CasosDeUso;
 using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
@@ -67,6 +66,7 @@ builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 // =======================
 // Casos de Uso
 // =======================
+builder.Services.AddScoped<SeedData>();
 builder.Services.AddScoped<ILogin<LoginRequestDto>, LoginUsuario>();
 
 // =======================
@@ -109,6 +109,14 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seed = scope.ServiceProvider.GetRequiredService<SeedData>();
+    seed.Run();
+}
+
 
 
 

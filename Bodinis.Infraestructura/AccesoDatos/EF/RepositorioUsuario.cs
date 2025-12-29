@@ -1,11 +1,10 @@
-﻿using Bodinis.Infraestructura.AccesoDatos.EF.Config;
-using Bodinis.LogicaNegocio.Entidades;
+﻿using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.LogicaNegocio.Vo;
 using Bodinis.Infraestructura.AccesoDatos.Excepciones;
 using Microsoft.EntityFrameworkCore;
 
-namespace Bodinis.Infraestructura.Repositorios
+namespace Bodinis.Infraestructura.AccesoDatos.EF
 {
     public class RepositorioUsuario : IRepositorioUsuario
     {

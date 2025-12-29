@@ -11,13 +11,13 @@ namespace Bodinis.LogicaNegocio.Entidades
         public string NombreCompleto { get;private set; }
         public VoEmail Email { get;private set; }
         public string UserName { get;private set; }
-        public string PaswordHash { get;private set; }
+        public string PasswordHash { get;private set; }
         public bool Activo { get;private set; }
         public RolUsuario Rol{ get;private set; }
 
         public Usuario() { } // Constructor para EF
 
-        public Usuario(string nombreCompleto,VoEmail email, string userName, string paswordHash, bool activo, RolUsuario rolUsuario)
+        public Usuario(string nombreCompleto,VoEmail email, string userName, string passwordHash, bool activo, RolUsuario rolUsuario)
         {
             if(string.IsNullOrWhiteSpace(nombreCompleto))
             {
@@ -31,7 +31,7 @@ namespace Bodinis.LogicaNegocio.Entidades
             NombreCompleto = nombreCompleto;
             Email = email;
             UserName = userName;
-            PaswordHash = paswordHash;
+            PasswordHash = passwordHash;
             Activo = true;
             Rol = rolUsuario;
             Validar();
@@ -49,7 +49,7 @@ namespace Bodinis.LogicaNegocio.Entidades
 
         public void ValidarLogin(string passwordHash)
         {
-            if(PaswordHash != passwordHash)
+            if(PasswordHash != passwordHash)
             {
                 throw new UsuarioInactivoException("Contraseña incorrecta.");
             }
