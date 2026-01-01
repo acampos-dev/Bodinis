@@ -3,6 +3,7 @@ using Bodinis.Infraestructura.AccesoDatos.EF.Seed;
 using Bodinis.LogicaAplicacion.CasosDeUso;
 using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
+using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -54,24 +55,28 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-// =======================
-// Infraestructura
-// =======================
-builder.Services.AddDbContext<BodinisContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Bodinis"))
-);
+
 
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
 // =======================
 // Casos de Uso
 // =======================
-builder.Services.AddScoped<SeedData>();
+
 builder.Services.AddScoped<ILogin<LoginRequestDto>, LoginUsuario>();
 
-// =======================
-// Seguridad JWT
-// =======================
+
+// Cargar datos iniciales a la base de datos
+builder.Services.AddScoped<SeedData>();
+
+builder.Services.AddDbContext<BodinisContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("BodinisDB")
+    )
+);
+
+
+
 
 // =======================
 // Seguridad JWT
@@ -80,7 +85,11 @@ builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt")
 );
 
+
+//Servicio que genera el token JWT
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+
+// Servicio para hashear contraseñas
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 var jwtSettings = builder.Configuration

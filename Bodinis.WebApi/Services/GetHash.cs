@@ -1,4 +1,4 @@
-﻿using Bodinis.LogicaAplicacion.Interfaces;
+﻿using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using System.Text;

@@ -15,11 +15,14 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 
         public void Run()
         {
-            if(_context.Usuarios.Any())
+            Console.WriteLine(">>> SEED DATA EJECUTADO <<<");
+            if (_context.Usuarios.Any())
             {
+                Console.WriteLine(">>>YA EXISTEN USUARIOS");
                 return; // Datos ya existen
             }
 
+            Console.WriteLine(">>>CREANDO USUARIOS POR DEFECTO");
             var admin = new Usuario(
                 "Administrador Bodinis",
                 new VoEmail("admin@bodinis.com"),

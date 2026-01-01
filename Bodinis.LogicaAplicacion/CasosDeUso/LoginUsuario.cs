@@ -1,4 +1,5 @@
-﻿using Bodinis.LogicaAplicacion.DTOs.Usuarios;
+﻿using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
+using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
@@ -30,11 +31,21 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso
             if (usuario == null)
                 throw new CredencialesInvalidasException();
 
-            var hash = _passwordHasher.Hash(request.Password);
+            if (!usuario.Activo)
+                throw new UsuarioInactivoException();
 
-            usuario.ValidarLogin(hash);
+            bool passwordOk = _passwordHasher.Verify(
+                request.Password,
+                usuario.PasswordHash
+            );
+
+            if (!passwordOk)
+                throw new CredencialesInvalidasException();
+
+            usuario.ValidarLogin(request.Password, _passwordHasher);
 
             return _jwtGenerator.GenerateToken(usuario);
         }
+
     }
 }

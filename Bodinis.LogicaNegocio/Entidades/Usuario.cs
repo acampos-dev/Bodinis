@@ -1,4 +1,5 @@
-﻿using Bodinis.LogicaNegocio.Enums;
+﻿using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
+using Bodinis.LogicaNegocio.Enums;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.Vo;
 
@@ -47,16 +48,13 @@ namespace Bodinis.LogicaNegocio.Entidades
         }
         public void Validar() { }
 
-        public void ValidarLogin(string passwordHash)
+        public void ValidarLogin(string passwordPlano, IPasswordHasher hasher)
         {
-            if(PasswordHash != passwordHash)
-            {
-                throw new UsuarioInactivoException("Contraseña incorrecta.");
-            }
-            if(!Activo)
-            {
-                throw new CredencialesInvalidasException("El usuario está desactivado.");
-            }
+            if (!Activo)
+                throw new UsuarioInactivoException("El usuario está desactivado.");
+
+            if (!hasher.Verify(passwordPlano, PasswordHash))
+                throw new CredencialesInvalidasException("Credenciales inválidas.");
         }
     }
 }
