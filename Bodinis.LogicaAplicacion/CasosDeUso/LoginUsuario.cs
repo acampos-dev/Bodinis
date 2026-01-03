@@ -12,7 +12,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IJwtGenerator _jwtGenerator;
         private readonly IPasswordHasher _passwordHasher;
-
+            
         public LoginUsuario(
             IRepositorioUsuario repositorioUsuario,
             IJwtGenerator jwtGenerator,
@@ -31,21 +31,17 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso
             if (usuario == null)
                 throw new CredencialesInvalidasException();
 
-            if (!usuario.Activo)
-                throw new UsuarioInactivoException();
-
-            bool passwordOk = _passwordHasher.Verify(
+            var passwordOk = _passwordHasher.Verify(
                 request.Password,
                 usuario.PasswordHash
             );
 
-            if (!passwordOk)
-                throw new CredencialesInvalidasException();
-
-            usuario.ValidarLogin(request.Password, _passwordHasher);
+            usuario.ValidarLogin(passwordOk);
 
             return _jwtGenerator.GenerateToken(usuario);
         }
+
+
 
     }
 }

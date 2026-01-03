@@ -17,14 +17,13 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
 
         public Usuario GetByEmail(VoEmail email)
         {
-            if(email == null) 
-            {
+            if (email == null)
                 throw new BadRequestException("El email no puede ser nulo");
-            }
+
             return _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefault(u => u.Email == email);
+                .FirstOrDefault(u => u.Email.Email == email.Email);
         }
+
 
         public Usuario GetById(int id)
         {

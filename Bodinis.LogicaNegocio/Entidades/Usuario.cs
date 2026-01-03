@@ -48,13 +48,14 @@ namespace Bodinis.LogicaNegocio.Entidades
         }
         public void Validar() { }
 
-        public void ValidarLogin(string passwordPlano, IPasswordHasher hasher)
+        public void ValidarLogin(bool passwordCorrecta)
         {
-            if (!Activo)
-                throw new UsuarioInactivoException("El usuario está desactivado.");
+            if (!passwordCorrecta)
+                throw new CredencialesInvalidasException("Contraseña incorrecta");
 
-            if (!hasher.Verify(passwordPlano, PasswordHash))
-                throw new CredencialesInvalidasException("Credenciales inválidas.");
+            if (!Activo)
+                throw new UsuarioInactivoException("Usuario inactivo");
         }
+
     }
 }

@@ -18,26 +18,27 @@ namespace Bodinis.WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequestDto request)
+        public IActionResult Login([FromBody] LoginRequestDto dto)
         {
             try
             {
-                var token = _login.Execute(request);
+                var token = _login.Execute(dto);
                 return Ok(new { token });
-            }
-            catch (UsuarioInactivoException e)
-            {
-                return StatusCode(403, new { mensaje = e.Message });
             }
             catch (CredencialesInvalidasException e)
             {
-                return Unauthorized(e.Message);
+                return Unauthorized(new { error = e.Message });
+            }
+            catch (UsuarioInactivoException e)
+            {
+                return StatusCode(403, new { error = e.Message });
             }
             catch (Exception)
             {
                 return StatusCode(500, "Error interno del servidor");
             }
         }
+
 
     }
 }

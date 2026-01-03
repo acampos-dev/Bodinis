@@ -1,5 +1,6 @@
 ﻿using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Enums;
+using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.Vo;
 
 namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
@@ -7,15 +8,20 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
     public class SeedData
     {
         private readonly BodinisContext _context;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public SeedData(BodinisContext context)
+        public SeedData(BodinisContext context, IPasswordHasher passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         public void Run()
         {
             Console.WriteLine(">>> SEED DATA EJECUTADO <<<");
+            Console.WriteLine(">>> CONTANDO USUARIOS...");
+            Console.WriteLine($">>> TOTAL: {_context.Usuarios.Count()}");
+
             if (_context.Usuarios.Any())
             {
                 Console.WriteLine(">>>YA EXISTEN USUARIOS");
@@ -27,7 +33,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 "Administrador Bodinis",
                 new VoEmail("admin@bodinis.com"),
                 "admin",
-                BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                _passwordHasher.Hash("Admin123"),
                 true,
                 RolUsuario.Admin
                 );
@@ -36,13 +42,15 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 "Empleado Bodinis",
                 new VoEmail("empleado@bodinis.com"),
                 "empleado",
-                BCrypt.Net.BCrypt.HashPassword("Empleado@123"),
+                _passwordHasher.Hash("Empleado@123"),
                 true,
                 RolUsuario.Empleado
                 );
 
             _context.Usuarios.AddRange(admin, emopleado);
             _context.SaveChanges();
+            Console.WriteLine(">>> SEED FINALIZADO");
+
         }
     }
 }

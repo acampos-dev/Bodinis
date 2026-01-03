@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bodinis.Infraestructura.Migrations
 {
     [DbContext(typeof(BodinisContext))]
-    [Migration("20260101215738_InitialCreate")]
+    [Migration("20260103201152_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

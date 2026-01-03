@@ -7,7 +7,7 @@ using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+using Bodinis.Infraestructura.Seguridad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -71,7 +71,7 @@ builder.Services.AddScoped<SeedData>();
 
 builder.Services.AddDbContext<BodinisContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("BodinisDB")
+        builder.Configuration.GetConnectionString("Bodinis")
     )
 );
 
@@ -90,7 +90,7 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 
 // Servicio para hashear contraseñas
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasherBodinis>();
 
 var jwtSettings = builder.Configuration
     .GetSection("Jwt")
