@@ -6,6 +6,7 @@ namespace Bodinis.LogicaNegocio.InterfacesRepositorio
         IRepositorioAdd<Usuario>,
         IRepositorioGetById<Usuario>,
         IRepositorioUpdate<Usuario>
+
     {
         Usuario GetByEmail(VoEmail email);
     }

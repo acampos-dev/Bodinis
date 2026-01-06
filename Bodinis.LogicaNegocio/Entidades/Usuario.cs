@@ -20,15 +20,7 @@ namespace Bodinis.LogicaNegocio.Entidades
 
         public Usuario(string nombreCompleto,VoEmail email, string userName, string passwordHash, bool activo, RolUsuario rolUsuario)
         {
-            if(string.IsNullOrWhiteSpace(nombreCompleto))
-            {
-                throw new DatosInvalidosExcpetion("El nombre completo no puede estar vacío.");
-            }
-            if(string.IsNullOrWhiteSpace(userName))
-            {
-                throw new DatosInvalidosExcpetion("El nombre de usuario no puede estar vacío.");
-            }
-
+            
             NombreCompleto = nombreCompleto;
             Email = email;
             UserName = userName;
@@ -46,10 +38,22 @@ namespace Bodinis.LogicaNegocio.Entidades
         {
             Activo = true;
         }
-        public void Validar() { }
+        public void Validar() 
+        {
+            if(string.IsNullOrWhiteSpace(NombreCompleto))
+            {
+                throw new DatosInvalidosExcpetion("El nombre completo no puede estar vacío.");
+            }
+            if (string.IsNullOrWhiteSpace(UserName))
+            {
+                throw new DatosInvalidosExcpetion("El nombre de usuario no puede estar vacío.");
+            }
+            
+        }
 
         public void ValidarLogin(bool passwordCorrecta)
         {
+            
             if (!passwordCorrecta)
                 throw new CredencialesInvalidasException("Contraseña incorrecta");
 

@@ -69,5 +69,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
             _context.Usuarios.Update(usuario);
             _context.SaveChanges();
         }
+
+
     }
 }
