@@ -1,6 +1,5 @@
 using Bodinis.Infraestructura.AccesoDatos.EF;
 using Bodinis.Infraestructura.AccesoDatos.EF.Seed;
-using Bodinis.LogicaAplicacion.CasosDeUso;
 using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
@@ -12,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Bodinis.LogicaAplicacion.CasosDeUso.Usuarios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,16 +54,22 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
+// =======================
+// Repositorios
+// =======================
 
 
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 
 // =======================
 // Casos de Uso
 // =======================
 
-builder.Services.AddScoped<ILogin<LoginRequestDto>, LoginUsuario>();
+
+
+// Caso de uso: Login Usuario
+builder.Services.AddScoped<ILogin<LoginDtoRequest>, LoginUsuario>();
 
 
 // Cargar datos iniciales a la base de datos

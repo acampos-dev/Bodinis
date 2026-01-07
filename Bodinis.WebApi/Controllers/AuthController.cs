@@ -10,15 +10,15 @@ namespace Bodinis.WebApi.Controllers
     [Route("api/auth")]
     public class AuthController: ControllerBase
     {
-        private readonly ILogin<LoginRequestDto> _login;
+        private readonly ILogin<LoginDtoRequest> _login;
 
-        public AuthController(ILogin<LoginRequestDto> login)
+        public AuthController(ILogin<LoginDtoRequest> login)
         {
             _login = login;
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequestDto dto)
+        public IActionResult Login([FromBody] LoginDtoRequest dto)
         {
             try
             {

@@ -7,6 +7,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
     public class BodinisContext : DbContext
     {
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Producto> Productos { get; set; }
 
 
         public BodinisContext(DbContextOptions<BodinisContext> options) : base(options)

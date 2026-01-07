@@ -5,9 +5,9 @@ using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.LogicaNegocio.Vo;
 
-namespace Bodinis.LogicaAplicacion.CasosDeUso
+namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
 {
-    public class LoginUsuario : ILogin<LoginRequestDto>
+    public class LoginUsuario : ILogin<LoginDtoRequest>
     {
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IJwtGenerator _jwtGenerator;
@@ -23,7 +23,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso
             _passwordHasher = passwordHasher;
         }
 
-        public string Execute(LoginRequestDto request)
+        public string Execute(LoginDtoRequest request)
         {
             var email = new VoEmail(request.Email);
 

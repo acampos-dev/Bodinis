@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bodinis.LogicaAplicacion.DTOs.Usuarios
 {
-    public record LoginReponseDTO(int UsuarioId,
+    public record LoginDtoResponse(int UsuarioId,
                                   string NombreCompleto,
                                   string Email,
                                   string UserName,

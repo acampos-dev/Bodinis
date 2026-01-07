@@ -1,6 +1,6 @@
 ﻿namespace Bodinis.LogicaAplicacion.DTOs.Usuarios
 {
-    public record LoginRequestDto(string Email, 
+    public record LoginDtoRequest(string Email, 
                                   string Password)
     {
     }
