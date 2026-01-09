@@ -6,7 +6,7 @@ namespace Bodinis.LogicaAplicacion.DTOs.Productos
                                       int Precio,
                                       bool Disponible,
                                       int Stock,
-                                      string Categoria
+                                      int CategoriaId
                                     )
     {
     }

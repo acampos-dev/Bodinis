@@ -3,21 +3,21 @@ namespace Bodinis.LogicaNegocio.Vo
 {
     public record VoNombreProducto
     {
-        public string NombreProducto { get; init; }
+        public string Valor { get; init; }
 
-        public VoNombreProducto(string nombreProducto)
+        public VoNombreProducto(string valor)
         {
-            NombreProducto = nombreProducto;
+            Valor = valor;
             Validar();
         }
 
         private void Validar()
         {
-            if (string.IsNullOrWhiteSpace(NombreProducto))
+            if (string.IsNullOrWhiteSpace(Valor))
             {
                 throw new NombreProductoException ("El nombre del producto no puede estar vacío.");
             }
-            if (NombreProducto.Length > 100)
+            if (Valor.Length > 100)
             {
                 throw new NombreProductoException("El nombre del producto no puede exceder los 100 caracteres.");
             }

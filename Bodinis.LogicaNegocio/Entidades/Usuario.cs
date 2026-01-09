@@ -42,11 +42,11 @@ namespace Bodinis.LogicaNegocio.Entidades
         {
             if(string.IsNullOrWhiteSpace(NombreCompleto))
             {
-                throw new DatosInvalidosExcpetion("El nombre completo no puede estar vacío.");
+                throw new DatosInvalidosException("El nombre completo no puede estar vacío.");
             }
             if (string.IsNullOrWhiteSpace(UserName))
             {
-                throw new DatosInvalidosExcpetion("El nombre de usuario no puede estar vacío.");
+                throw new DatosInvalidosException("El nombre de usuario no puede estar vacío.");
             }
             
         }

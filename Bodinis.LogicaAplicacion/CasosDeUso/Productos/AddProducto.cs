@@ -2,22 +2,34 @@
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaAplicacion.DTOs.Productos;
+using Bodinis.LogicaAplicacion.Mappers;
+using Bodinis.LogicaNegocio.Excepciones;
 namespace Bodinis.LogicaAplicacion.CasosDeUso.Productos
 {
     public class AddProducto: ICUAdd<ProductoDtoAlta>
     {
-        private IRepositorioProducto _repo;
+        private IRepositorioProducto _repoProducto;
+        private IRepositorioCategoria _repoCategoria;
 
-        public AddProducto(IRepositorioProducto repo)
+        public AddProducto(IRepositorioProducto repoProducto, 
+                           IRepositorioCategoria repoCategoria)
         {
-            _repo = repo;
+            _repoProducto = repoProducto;
+            _repoCategoria = repoCategoria;
         }
 
         public void Execute(ProductoDtoAlta dto)
         {
-            Producto producto = null; // Inicializo la variable producto
+            var categoria = _repoCategoria.GetById(dto.CategoriaId);
 
-            if(dto)
+            if(categoria == null)
+            {
+                throw new DatosInvalidosException("Categoría no encontrada");
+            }
+            var producto = ProductoMapper.ToEntity(dto, categoria);
+
+            _repoProducto.Add(producto);
+
 
         }
     }

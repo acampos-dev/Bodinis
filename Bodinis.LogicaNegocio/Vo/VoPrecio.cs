@@ -6,11 +6,11 @@ namespace Bodinis.LogicaNegocio.Vo
 {
     public class VoPrecio: LogicaNegocioException
     {
-        public int Precio { get; init; }
+        public int Valor { get; init; }
 
-        public VoPrecio(int precio)
+        public VoPrecio(int valor)
         {
-            Precio = precio;
+            Valor = valor;
             Validar();
         }
 

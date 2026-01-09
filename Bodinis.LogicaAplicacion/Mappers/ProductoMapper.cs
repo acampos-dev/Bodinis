@@ -25,13 +25,23 @@ namespace Bodinis.LogicaAplicacion.Mappers
         public static ProductoDtoListado ToDto(Producto producto)
         {
             return new ProductoDtoListado(
-                Id = producto.Id,
-                NombreProducto = producto.NombreProducto.Valor,
-                Precio = producto.Precio.Valor,
-                Disponible = producto.Disponible,
-                Stock = producto.Stock,
-                Categoria = producto.Categoria.NombreCategoria
+                producto.Id,
+                producto.NombreProducto.Valor,
+                producto.Precio.Valor,
+                producto.Disponible,
+                producto.Stock,
+                producto.Categoria.Nombre
                 );
         }
-    }
+
+        // 🔹 Convierte una lista de entidades a una lista de DTOs
+        public static IEnumerable<ProductoDtoListado> ToListDto(IEnumerable<Producto> producto)
+        {
+            List<ProductoDtoListado> listaDto = new List<ProductoDtoListado>();
+            foreach (var item in producto)
+            {
+                listaDto.Add(ToDto(item));
+            }
+            return listaDto;
+        }
 }
