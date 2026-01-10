@@ -44,4 +44,5 @@ namespace Bodinis.LogicaAplicacion.Mappers
             }
             return listaDto;
         }
+    }
 }

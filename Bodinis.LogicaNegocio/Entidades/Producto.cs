@@ -62,15 +62,27 @@ namespace Bodinis.LogicaNegocio.Entidades
             if (other == null) return false;
             return Id.Equals(other.Id);
         }
-        public void Update(Producto obj)
+        public void Modificar(
+                VoNombreProducto nombre,
+                VoPrecio precio,
+                bool disponible,
+                int stock,
+                Categoria categoria)
         {
-            // Actualizar solo los campos que se pueden modificar
-            NombreProducto = obj.NombreProducto;
-            Precio = obj.Precio;
-            Stock = obj.Stock;
-            Disponible = obj.Disponible;
+            NombreProducto = nombre;
+            Precio = precio;
+            Disponible = disponible;
+            Stock = stock;
+            Categoria = categoria;
+
             Validar();
         }
 
+
+        public void Desactivar()
+        {
+            Disponible = false;
+        }
+        
     }
 }

@@ -1,13 +1,15 @@
 ﻿
+
 namespace Bodinis.LogicaAplicacion.DTOs.Productos
 {
-    public record ProductoDtoAlta(
+    public record ProductoDtoModificar(
+                                      int Id,
                                       string NombreProducto,
                                       int Precio,
                                       bool Disponible,
                                       int Stock,
-                                      string Categoria
-                                    )
+                                      int CategoriaId
+                                    )   
     {
     }
 }

@@ -8,6 +8,5 @@ namespace Bodinis.LogicaNegocio.Excepciones
         {
         }
     }
-    {
-    }
+    
 }

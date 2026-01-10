@@ -4,6 +4,6 @@ namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
     public interface ICUUpdate<T>
     {
-        void Execute(int id, T obj);
+        void Execute(T obj);
     }
 }

@@ -50,5 +50,34 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
                 .Include(p => p.Categoria)
                 .ToList();
         }
+
+        public void Update(int id, Producto  obj) // Actualiza a partir de la id
+        {
+            if(obj == null) 
+            {
+                throw new BadRequestException("El producto no puede ser nulo");
+            }
+            Producto productoAActualizar = _context.Productos.FirstOrDefault(p => p.Id == id);
+
+            if(productoAActualizar == null) 
+            {
+                throw new NotFoundException("No se encontro el producto con la id solicitada");
+            }
+
+            productoAActualizar.NombreProducto = new VoNombreProducto(obj.NombreProducto.Valor);
+            productoAActualizar.Precio = new VoPrecio(obj.Precio.Valor);
+
+        }
+
+        public void Delete(int id)
+        {
+            Producto productoAEliminar = _context.Productos.FirstOrDefault(p => p.Id == id);
+            if(productoAEliminar == null) 
+            {
+                throw new NotFoundException("No se encontro el producto con la id solicitada");
+            }
+            _context.Productos.Remove(productoAEliminar);
+            _context.SaveChanges();
+        }
     }
 }
