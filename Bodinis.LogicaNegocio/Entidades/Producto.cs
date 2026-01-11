@@ -81,8 +81,12 @@ namespace Bodinis.LogicaNegocio.Entidades
 
         public void Desactivar()
         {
+            if (!Disponible)
+                throw new DatosInvalidosException("El producto ya está desactivado");
+
             Disponible = false;
         }
-        
+
+
     }
 }

@@ -3,6 +3,6 @@ namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
     public interface IRepositorioUpdate<T>
     {
-        void Update(T obj);
+        void Update(int id,T obj);
     }
 }

@@ -46,38 +46,51 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
 
         public IEnumerable<Producto> GetAll()
         {
+            if(_context.Productos == null)
+                {
+                throw new NotFoundException("No se encontraron productos");
+            }
             return _context.Productos
                 .Include(p => p.Categoria)
                 .ToList();
         }
 
-        public void Update(int id, Producto  obj) // Actualiza a partir de la id
+        public void Update(int id, Producto obj) // Actualiza a partir de la id
         {
-            if(obj == null) 
+            if (obj == null)
             {
                 throw new BadRequestException("El producto no puede ser nulo");
             }
             Producto productoAActualizar = _context.Productos.FirstOrDefault(p => p.Id == id);
 
-            if(productoAActualizar == null) 
+            if (productoAActualizar == null)
             {
                 throw new NotFoundException("No se encontro el producto con la id solicitada");
             }
 
-            productoAActualizar.NombreProducto = new VoNombreProducto(obj.NombreProducto.Valor);
-            productoAActualizar.Precio = new VoPrecio(obj.Precio.Valor);
+            // Usar el método Modificar de la entidad Producto para actualizar los valores
+            productoAActualizar.Modificar(
+                obj.NombreProducto,
+                obj.Precio,
+                obj.Disponible,
+                obj.Stock,
+                obj.Categoria
+            );
 
-        }
-
-        public void Delete(int id)
-        {
-            Producto productoAEliminar = _context.Productos.FirstOrDefault(p => p.Id == id);
-            if(productoAEliminar == null) 
-            {
-                throw new NotFoundException("No se encontro el producto con la id solicitada");
-            }
-            _context.Productos.Remove(productoAEliminar);
             _context.SaveChanges();
         }
+
+        public IEnumerable<Producto> GetActivos()
+        {
+            if(_context.Productos == null)
+            {
+                throw new NotFoundException("No se encontraron productos");
+            }
+            return _context.Productos
+                .Include(p => p.Categoria)
+                .Where(p => p.Disponible)
+                .ToList();
+        }
+
     }
 }

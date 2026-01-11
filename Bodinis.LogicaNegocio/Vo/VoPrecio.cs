@@ -1,5 +1,5 @@
 ﻿
-
+using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Excepciones;
 
 namespace Bodinis.LogicaNegocio.Vo
@@ -16,7 +16,7 @@ namespace Bodinis.LogicaNegocio.Vo
 
         private void Validar()
         {
-            if (Precio < 0)
+            if (Valor < 0)
             {
                 throw new PrecioException("El precio no puede ser negativo.");
             }

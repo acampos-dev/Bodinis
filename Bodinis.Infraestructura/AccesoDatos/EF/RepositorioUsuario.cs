@@ -43,7 +43,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
             }
         }
 
-        public int Add(Usuario usuario)
+        public void Add(Usuario usuario)
         {
             if(usuario == null) 
             {
@@ -52,7 +52,6 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
             usuario.Validar();
             _context.Usuarios.Add(usuario);
             _context.SaveChanges();
-            return usuario.Id;
         }
 
         public void Update(int id, Usuario obj)

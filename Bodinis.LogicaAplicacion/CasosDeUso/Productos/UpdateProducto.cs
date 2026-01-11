@@ -1,6 +1,4 @@
 ﻿using Bodinis.LogicaAplicacion.DTOs.Productos;
-using Bodinis.LogicaAplicacion.Mappers;
-using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
@@ -8,7 +6,7 @@ using Bodinis.LogicaNegocio.Vo;
 
 namespace Bodinis.LogicaAplicacion.CasosDeUso.Productos
 {
-    public class UpdateProducto : ICUUpdate<ProductoDtoAlta>
+    public class UpdateProducto : ICUUpdate<ProductoDtoModificar>
     {
         private readonly IRepositorioProducto _repoProducto;
         private readonly IRepositorioCategoria _repoCategoria;
@@ -21,7 +19,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Productos
             _repoCategoria = repoCategoria;
         }
 
-        public void Execute(int id, ProductoDtoAlta dto)
+        public void Execute(int id, ProductoDtoModificar dto)
         {
             var producto = _repoProducto.GetById(id);
             if (producto == null)
@@ -31,7 +29,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Productos
             if (categoria == null)
                 throw new DatosInvalidosException("Categoría inválida");
 
-            producto.Update(
+            producto.Modificar(
                 new VoNombreProducto(dto.NombreProducto),
                 new VoPrecio(dto.Precio),
                 dto.Disponible,
@@ -39,7 +37,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Productos
                 categoria
             );
 
-            _repoProducto.Update(producto);
+            _repoProducto.Update(id, producto);
         }
     }
 }

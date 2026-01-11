@@ -12,6 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Bodinis.LogicaAplicacion.CasosDeUso.Usuarios;
+using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
+using Bodinis.LogicaAplicacion.DTOs.Productos;
+using Bodinis.LogicaAplicacion.CasosDeUso.Productos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,10 +69,15 @@ builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 // Casos de Uso
 // =======================
 
-
-
 // Caso de uso: Login Usuario
 builder.Services.AddScoped<ILogin<LoginDtoRequest>, LoginUsuario>();
+
+// Caso de uso: CRUD Producto
+builder.Services.AddScoped<ICUAdd<ProductoDtoAlta>, AddProducto>();
+builder.Services.AddScoped<ICUDeactivate, DesactivarProducto>();
+builder.Services.AddScoped<ICUGetAll<ProductoDtoListado>, GetAllProductos>();
+builder.Services.AddScoped<ICUGetById<ProductoDtoListado>, GetProductoById>();
+builder.Services.AddScoped<ICUUpdate<ProductoDtoModificar>, UpdateProducto>();
 
 
 // Cargar datos iniciales a la base de datos

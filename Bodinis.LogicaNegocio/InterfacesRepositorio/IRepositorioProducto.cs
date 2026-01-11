@@ -2,14 +2,13 @@
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    public interface IRepositorioProducto:
-        IRepositorioGetAll<Producto>,
-        IRepositorioAdd<Producto>,
-        IRepositorioGetById<Producto>,
-        IRepositorioUpdate<Producto>,
-        IRepositorioDelete<Producto>
-
+    public interface IRepositorioProducto :
+    IRepositorioAdd<Producto>,
+    IRepositorioUpdate<Producto>,
+    IRepositorioGetById<Producto>,
+    IRepositorioGetAll<Producto>
     {
-
+        IEnumerable<Producto> GetActivos();
     }
+
 }
