@@ -4,7 +4,7 @@ using Bodinis.LogicaNegocio.Excepciones;
 
 namespace Bodinis.LogicaNegocio.Vo
 {
-    public class VoPrecio: LogicaNegocioException
+    public class VoPrecio
     {
         public int Valor { get; init; }
 
@@ -19,6 +19,10 @@ namespace Bodinis.LogicaNegocio.Vo
             if (Valor < 0)
             {
                 throw new PrecioException("El precio no puede ser negativo.");
+            }
+            else if (Valor == 0)
+            {
+                throw new PrecioException("El precio no puede ser cero.");
             }
         }
 
