@@ -10,7 +10,6 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
         public void Configure(EntityTypeBuilder<Producto> builder)
         {
             builder.ToTable("Productos");
-
             builder.HasKey(p => p.Id);
 
             builder.Property(p => p.NombreProducto)
@@ -26,16 +25,17 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
                     v => v.Valor,
                     v => new VoPrecio(v))
                 .HasColumnName("Precio")
+                // Sugerencia: Especificar precisión para dinero
+                .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            builder.Property(p => p.Disponible)
-                .IsRequired();
-
-            builder.Property(p => p.Stock)
-                .IsRequired();
+            builder.Property(p => p.Disponible).IsRequired();
+            builder.Property(p => p.Stock).IsRequired();
 
             builder.HasOne(p => p.Categoria)
                 .WithMany(c => c.Productos)
+                // Si CategoriaId no está en la clase Producto, EF la crea en las sombras.
+                // Asegúrate de que esto coincida con tu modelo.
                 .HasForeignKey("CategoriaId")
                 .OnDelete(DeleteBehavior.Restrict);
         }

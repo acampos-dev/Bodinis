@@ -1,6 +1,7 @@
 ﻿using Bodinis.LogicaNegocio.Entidades;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Bodinis.LogicaNegocio.Enums; // Asegúrate de tener el using del Enum
 
 namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
 {
@@ -24,8 +25,16 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
                    .IsRequired()
                    .HasMaxLength(255);
 
+            // -----------------------------------------------------------
+            // CAMBIO: De bool (1/0) a String ("SI"/"NO")
+            // -----------------------------------------------------------
             builder.Property(u => u.Activo)
-                   .IsRequired();
+                   .IsRequired()
+                   .HasConversion(
+                        v => v ? "SI" : "NO",   // C# a DB
+                        v => v == "SI"          // DB a C#
+                   )
+                   .HasMaxLength(2);
 
             // -------------------------
             // Value Object: Email
@@ -41,12 +50,16 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
                        .IsUnique();
             });
 
-            // -------------------------
-            // Enum RolUsuario
-            // -------------------------
+            // -----------------------------------------------------------
+            // CAMBIO: Enum RolUsuario a String (ADMIN/EMPLEADO)
+            // -----------------------------------------------------------
             builder.Property(u => u.Rol)
                    .IsRequired()
-                   .HasConversion<int>();
+                   .HasConversion(
+                        v => v.ToString().ToUpper(), // Guarda el nombre en mayúsculas
+                        v => (RolUsuario)Enum.Parse(typeof(RolUsuario), v) // Recupera el Enum
+                   )
+                   .HasMaxLength(20);
 
             builder.HasIndex(u => u.UserName)
                    .IsUnique();
