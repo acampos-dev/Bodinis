@@ -8,6 +8,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
     {
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<Categoria> Categorias { get; set; }
 
 
         public BodinisContext(DbContextOptions<BodinisContext> options) : base(options)
@@ -18,6 +19,8 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new UsuarioConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoriaConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductoConfiguration());
         }   
         
     }

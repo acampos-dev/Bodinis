@@ -12,7 +12,7 @@ namespace Bodinis.LogicaNegocio.Entidades
 
         public Categoria(string nombre, ICollection<Producto> productos) {
             Nombre = nombre;
-            Productos = new List<Producto>();
+            Productos = productos ?? new List<Producto>();
         }
     }
 }

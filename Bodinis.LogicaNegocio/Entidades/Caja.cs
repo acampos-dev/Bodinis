@@ -17,7 +17,8 @@ namespace Bodinis.LogicaNegocio.Entidades
     {
         FechaApertura = fechaApertura;
         MontoApertura = montoApertura;
-        Ventas = new List<Venta>();
+        MontoCierre = montocierre;
+        Ventas = ventas ?? new List<Venta>();
         }
     }
 

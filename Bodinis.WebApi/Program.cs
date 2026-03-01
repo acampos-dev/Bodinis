@@ -64,6 +64,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
+builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
 
 // =======================
 // Casos de Uso

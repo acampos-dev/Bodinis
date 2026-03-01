@@ -28,17 +28,18 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
 
         public Producto GetById(int id)
         {
-           if(id == 0) 
+            if (id == 0)
             {
                 throw new BadRequestException("Esta id es incorrecto");
             }
-           Producto unProducto = _context.Productos
-                .FirstOrDefault(p => p.Id == id);
-              if(unProducto == null) 
+            Producto unProducto = _context.Productos
+                 .Include(p => p.Categoria)
+                 .FirstOrDefault(p => p.Id == id);
+            if (unProducto == null)
             {
                 throw new NotFoundException("No se encontro el producto con la id solicitada");
             }
-            else 
+            else
             {
                 return unProducto;
             }
