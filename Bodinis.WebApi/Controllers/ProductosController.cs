@@ -40,7 +40,7 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var productos = _getAllProductos.GetAll();
+                var productos = _getAllProductos.Execute();
                 return Ok(productos);
             }
             catch (InfraestructuraException e)
@@ -127,5 +127,4 @@ namespace Bodinis.WebApi.Controllers
 }
 
     
-
 
