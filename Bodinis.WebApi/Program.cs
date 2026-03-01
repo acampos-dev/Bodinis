@@ -136,7 +136,13 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var seed = scope.ServiceProvider.GetRequiredService<SeedData>();
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<BodinisContext>();
+
+    // Esto asegura que la DB y las tablas existan antes del Seed
+    context.Database.EnsureCreated();
+
+    var seed = services.GetRequiredService<SeedData>();
     seed.Run();
 }
 

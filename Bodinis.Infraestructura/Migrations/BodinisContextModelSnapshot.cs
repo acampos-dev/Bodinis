@@ -63,7 +63,7 @@ namespace Bodinis.Infraestructura.Migrations
                         .HasColumnName("NombreProducto");
 
                     b.Property<int>("Precio")
-                        .HasColumnType("int")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("Precio");
 
                     b.Property<int>("Stock")
@@ -84,8 +84,10 @@ namespace Bodinis.Infraestructura.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
+                    b.Property<string>("Activo")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
 
                     b.Property<string>("NombreCompleto")
                         .IsRequired()
@@ -97,8 +99,10 @@ namespace Bodinis.Infraestructura.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("Rol")
-                        .HasColumnType("int");
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("UserName")
                         .IsRequired()

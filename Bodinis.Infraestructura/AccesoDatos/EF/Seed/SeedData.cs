@@ -19,18 +19,31 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 
         public void Run()
         {
-            Console.WriteLine(">>> SEED DATA EJECUTADO <<<");
+            try
+            {
+                Console.WriteLine(">>> EMPEZANDO SEED...");
 
-            SeedUsuarios();
-            SeedCategoriasYProductos();
+                // Asegurar que la base de datos existe
+                _context.Database.EnsureCreated();
 
-            Console.WriteLine(">>> SEED FINALIZADO <<<");
+                SeedUsuarios();
+                SeedCategoriasYProductos();
+
+                Console.WriteLine(">>> SEED FINALIZADO EXITOSAMENTE <<<");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($">>> ERROR CRÍTICO EN SEED: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($">>> DETALLE: {ex.InnerException.Message}");
+                }
+            }
         }
 
         private void SeedUsuarios()
         {
-            Console.WriteLine(">>> CONTANDO USUARIOS...");
-            Console.WriteLine($">>> TOTAL: {_context.Usuarios.Count()}");
+            Console.WriteLine(">>> VERIFICANDO USUARIOS...");
 
             if (!ExisteUsuarioPorEmail("admin@bodinis.com"))
             {
@@ -77,11 +90,12 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 
             if (!categoriasExistentes.ContainsKey("Milanesas"))
             {
-                Console.WriteLine(">>> USUARIOS YA EXISTEN");
+                Console.WriteLine($">>> USUARIOS YA EXISTEN (Total: {_context.Usuarios.Count()})");
                 return;
             }
 
-            Console.WriteLine(">>> CREANDO USUARIOS POR DEFECTO");
+            Console.WriteLine(">>> CREANDO USUARIOS POR DEFECTO...");
+
             var admin = new Usuario(
                 "Administrador Bodinis",
                 new VoEmail("admin@bodinis.com"),
@@ -89,49 +103,52 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 _passwordHasher.Hash("Admin123"),
                 true,
                 RolUsuario.Admin
-                );
+            );
 
             var empleado = new Usuario(
-               "Empleado Bodinis",
-               new VoEmail("empleado@bodinis.com"),
-               "empleado",
-               _passwordHasher.Hash("Empleado@123"),
-               true,
-               RolUsuario.Empleado
-               );
+                "Empleado Bodinis",
+                new VoEmail("empleado@bodinis.com"),
+                "empleado",
+                _passwordHasher.Hash("Empleado@123"),
+                true,
+                RolUsuario.Empleado
+            );
+
             _context.Usuarios.AddRange(admin, empleado);
             _context.SaveChanges();
+            Console.WriteLine(">>> USUARIOS CREADOS.");
         }
 
         private void SeedCategoriasYProductos()
         {
-            Console.WriteLine(">>> CONTANDO CATEGORIAS...");
-            Console.WriteLine($">>> TOTAL: {_context.Categorias.Count()}");
+            Console.WriteLine(">>> VERIFICANDO CATEGORIAS...");
 
-            var categoriasExistentes = _context.Categorias
-               .ToDictionary(c => c.Nombre, c => c);
-
-            if (!categoriasExistentes.ContainsKey("Pizzas"))
+            // 1. Asegurar Categorías
+            var nombresCategorias = new[] { "Pizzas", "Milanesas", "Bebidas" };
+            foreach (var nombreCat in nombresCategorias)
             {
-                categoriasExistentes["Pizzas"] = _context.Categorias.Add(new Categoria("Pizzas", new List<Producto>())).Entity;
+                if (!_context.Categorias.Any(c => c.Nombre == nombreCat))
+                {
+                    _context.Categorias.Add(new Categoria(nombreCat, new List<Producto>()));
+                }
             }
-
-            if (!categoriasExistentes.ContainsKey("Milanesas"))
-            {
-                categoriasExistentes["Milanesas"] = _context.Categorias.Add(new Categoria("Milanesas", new List<Producto>())).Entity;
-            }
-
-            if (!categoriasExistentes.ContainsKey("Bebidas"))
-            {
-                categoriasExistentes["Bebidas"] = _context.Categorias.Add(new Categoria("Bebidas", new List<Producto>())).Entity;
-            }
-
             _context.SaveChanges();
 
-            Console.WriteLine(">>> CONTANDO PRODUCTOS...");
-            Console.WriteLine($">>> TOTAL: {_context.Productos.Count()}");
+            // 2. Obtener categorías en memoria para usarlas como referencia
+            var categoriasExistentes = _context.Categorias.ToDictionary(c => c.Nombre, c => c);
 
-            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Pizza Muzzarella"))
+            Console.WriteLine(">>> VERIFICANDO PRODUCTOS...");
+
+            // 3. Obtener nombres de productos de forma segura (Evaluación en cliente para evitar error de traducción)
+            var nombresEnDb = _context.Productos
+                .AsEnumerable()
+                .Select(p => p.NombreProducto.Valor)
+                .ToList();
+
+            // 4. Carga de productos
+
+            // Pizza
+            if (!nombresEnDb.Contains("Pizza Muzzarella"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Pizza Muzzarella"),
@@ -142,7 +159,8 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 ));
             }
 
-            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Milanesa Napolitana"))
+            // Milanesa
+            if (!nombresEnDb.Contains("Milanesa Napolitana"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Milanesa Napolitana"),
@@ -153,7 +171,8 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 ));
             }
 
-            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Coca Cola 1.5L"))
+            // Bebida
+            if (!nombresEnDb.Contains("Coca Cola 1.5L"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Coca Cola 1.5L"),
@@ -165,6 +184,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             }
 
             _context.SaveChanges();
+            Console.WriteLine($">>> PRODUCTOS PROCESADOS. TOTAL EN DB: {_context.Productos.Count()}");
         }
     }
 }
