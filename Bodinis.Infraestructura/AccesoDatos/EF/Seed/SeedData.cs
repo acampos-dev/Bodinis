@@ -2,6 +2,7 @@
 using Bodinis.LogicaNegocio.Enums;
 using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.Vo;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 {
@@ -31,7 +32,50 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             Console.WriteLine(">>> CONTANDO USUARIOS...");
             Console.WriteLine($">>> TOTAL: {_context.Usuarios.Count()}");
 
-            if (_context.Usuarios.Any())
+            if (!ExisteUsuarioPorEmail("admin@bodinis.com"))
+            {
+                Console.WriteLine(">>> CREANDO USUARIO ADMIN");
+                _context.Usuarios.Add(new Usuario(
+                    "Administrador Bodinis",
+                    new VoEmail("admin@bodinis.com"),
+                    "admin",
+                    _passwordHasher.Hash("Admin123"),
+                    true,
+                    RolUsuario.Admin
+                ));
+            }
+
+            if (!ExisteUsuarioPorEmail("empleado@bodinis.com"))
+            {
+                Console.WriteLine(">>> CREANDO USUARIO EMPLEADO");
+                _context.Usuarios.Add(new Usuario(
+                    "Empleado Bodinis",
+                    new VoEmail("empleado@bodinis.com"),
+                    "empleado",
+                    _passwordHasher.Hash("Empleado@123"),
+                    true,
+                    RolUsuario.Empleado
+                ));
+            }
+
+            _context.SaveChanges();
+            Console.WriteLine($">>> USUARIOS LUEGO DE SEED: {_context.Usuarios.Count()}");
+        }
+
+        private void SeedCategoriasYProductos()
+        {
+            Console.WriteLine(">>> CONTANDO CATEGORIAS...");
+            Console.WriteLine($">>> TOTAL: {_context.Categorias.Count()}");
+
+            var categoriasExistentes = _context.Categorias
+                .ToDictionary(c => c.Nombre, c => c);
+
+            if (!categoriasExistentes.ContainsKey("Pizzas"))
+            {
+                categoriasExistentes["Pizzas"] = _context.Categorias.Add(new Categoria("Pizzas", new List<Producto>())).Entity;
+            }
+
+            if (!categoriasExistentes.ContainsKey("Milanesas"))
             {
                 Console.WriteLine(">>> USUARIOS YA EXISTEN");
                 return;
