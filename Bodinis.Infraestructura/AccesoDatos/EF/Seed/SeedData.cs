@@ -20,15 +20,10 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
         public void Run()
         {
             Console.WriteLine(">>> SEED DATA EJECUTADO <<<");
-            Console.WriteLine($">>> DB SERVER: {_context.Database.GetDbConnection().DataSource}");
-            Console.WriteLine($">>> DB NAME: {_context.Database.GetDbConnection().Database}");
 
             SeedUsuarios();
             SeedCategoriasYProductos();
 
-            Console.WriteLine($">>> CONTEO FINAL USUARIOS: {_context.Usuarios.Count()}");
-            Console.WriteLine($">>> CONTEO FINAL CATEGORIAS: {_context.Categorias.Count()}");
-            Console.WriteLine($">>> CONTEO FINAL PRODUCTOS: {_context.Productos.Count()}");
             Console.WriteLine(">>> SEED FINALIZADO <<<");
         }
 
@@ -82,6 +77,47 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 
             if (!categoriasExistentes.ContainsKey("Milanesas"))
             {
+                Console.WriteLine(">>> USUARIOS YA EXISTEN");
+                return;
+            }
+
+            Console.WriteLine(">>> CREANDO USUARIOS POR DEFECTO");
+            var admin = new Usuario(
+                "Administrador Bodinis",
+                new VoEmail("admin@bodinis.com"),
+                "admin",
+                _passwordHasher.Hash("Admin123"),
+                true,
+                RolUsuario.Admin
+                );
+
+            var empleado = new Usuario(
+               "Empleado Bodinis",
+               new VoEmail("empleado@bodinis.com"),
+               "empleado",
+               _passwordHasher.Hash("Empleado@123"),
+               true,
+               RolUsuario.Empleado
+               );
+            _context.Usuarios.AddRange(admin, empleado);
+            _context.SaveChanges();
+        }
+
+        private void SeedCategoriasYProductos()
+        {
+            Console.WriteLine(">>> CONTANDO CATEGORIAS...");
+            Console.WriteLine($">>> TOTAL: {_context.Categorias.Count()}");
+
+            var categoriasExistentes = _context.Categorias
+               .ToDictionary(c => c.Nombre, c => c);
+
+            if (!categoriasExistentes.ContainsKey("Pizzas"))
+            {
+                categoriasExistentes["Pizzas"] = _context.Categorias.Add(new Categoria("Pizzas", new List<Producto>())).Entity;
+            }
+
+            if (!categoriasExistentes.ContainsKey("Milanesas"))
+            {
                 categoriasExistentes["Milanesas"] = _context.Categorias.Add(new Categoria("Milanesas", new List<Producto>())).Entity;
             }
 
@@ -91,12 +127,11 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             }
 
             _context.SaveChanges();
-            Console.WriteLine($">>> CATEGORIAS LUEGO DE SEED: {_context.Categorias.Count()}");
 
             Console.WriteLine(">>> CONTANDO PRODUCTOS...");
             Console.WriteLine($">>> TOTAL: {_context.Productos.Count()}");
 
-            if (!ExisteProductoPorNombre("Pizza Muzzarella"))
+            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Pizza Muzzarella"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Pizza Muzzarella"),
@@ -107,7 +142,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 ));
             }
 
-            if (!ExisteProductoPorNombre("Milanesa Napolitana"))
+            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Milanesa Napolitana"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Milanesa Napolitana"),
@@ -118,7 +153,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
                 ));
             }
 
-            if (!ExisteProductoPorNombre("Coca Cola 1.5L"))
+            if (!_context.Productos.Any(p => p.NombreProducto.Valor == "Coca Cola 1.5L"))
             {
                 _context.Productos.Add(new Producto(
                     new VoNombreProducto("Coca Cola 1.5L"),
@@ -130,19 +165,6 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             }
 
             _context.SaveChanges();
-            Console.WriteLine($">>> PRODUCTOS LUEGO DE SEED: {_context.Productos.Count()}");
-        }
-
-        private bool ExisteUsuarioPorEmail(string email)
-        {
-            return _context.Usuarios.Any(u =>
-                EF.Property<string>(u, "Email") == email);
-        }
-
-        private bool ExisteProductoPorNombre(string nombreProducto)
-        {
-            return _context.Productos.Any(p =>
-                EF.Property<string>(p, "NombreProducto") == nombreProducto);
         }
     }
 }

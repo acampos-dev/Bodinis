@@ -70,7 +70,5 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
 
             _context.SaveChanges();
         }
-
-
     }
 }

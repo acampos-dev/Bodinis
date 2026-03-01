@@ -21,6 +21,61 @@ namespace Bodinis.Infraestructura.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("Categorias", (string)null);
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Producto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Disponible")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NombreProducto")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("NombreProducto");
+
+                    b.Property<int>("Precio")
+                        .HasColumnType("int")
+                        .HasColumnName("Precio");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.ToTable("Productos", (string)null);
+                });
+
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -58,6 +113,17 @@ namespace Bodinis.Infraestructura.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Producto", b =>
+                {
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Categoria", "Categoria")
+                        .WithMany("Productos")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+                });
+
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Usuario", b =>
                 {
                     b.OwnsOne("Bodinis.LogicaNegocio.Vo.VoEmail", "Email", b1 =>
@@ -84,6 +150,11 @@ namespace Bodinis.Infraestructura.Migrations
 
                     b.Navigation("Email")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Categoria", b =>
+                {
+                    b.Navigation("Productos");
                 });
 #pragma warning restore 612, 618
         }

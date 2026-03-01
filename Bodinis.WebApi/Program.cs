@@ -136,9 +136,6 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<BodinisContext>();
-    context.Database.Migrate();
-
     var seed = scope.ServiceProvider.GetRequiredService<SeedData>();
     seed.Run();
 }
