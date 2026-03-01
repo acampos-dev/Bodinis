@@ -53,16 +53,21 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
             return categoria;
         }
 
-        public void Update(Categoria categoria)
+        public void Update(int id, Categoria categoria)
         {
-            if(categoria == null)
+            if (id <= 0)
+            {
+                throw new BadRequestException("La id de categoria es inválida");
+            }
+
+            if (categoria == null)
             {
                 throw new BadRequestException("La categoría no puede ser nula.");
             }
-            var categoriaExistente = GetById(categoria.Id);
-            if (categoriaExistente == null)
-                throw new NotFoundException("No se encontró la categoría a actualizar.");
+
+            var categoriaExistente = GetById(id);
             categoriaExistente.Nombre = categoria.Nombre;
+
             _context.SaveChanges();
         }
 

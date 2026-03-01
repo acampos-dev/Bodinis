@@ -104,7 +104,7 @@ builder.Services.Configure<JwtSettings>(
 //Servicio que genera el token JWT
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 
-// Servicio para hashear contraseñas
+// Servicio para hashear contraseÃ±as
 builder.Services.AddScoped<IPasswordHasher, PasswordHasherBodinis>();
 
 var jwtSettings = builder.Configuration
@@ -134,15 +134,14 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<BodinisContext>();
+    context.Database.Migrate();
+
     var seed = scope.ServiceProvider.GetRequiredService<SeedData>();
     seed.Run();
 }
-
-
-
 
 if (app.Environment.IsDevelopment())
 {
