@@ -15,6 +15,10 @@ using Bodinis.LogicaAplicacion.CasosDeUso.Usuarios;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaAplicacion.DTOs.Productos;
 using Bodinis.LogicaAplicacion.CasosDeUso.Productos;
+using Bodinis.LogicaAplicacion.DTOs.Categorias;
+using Bodinis.LogicaAplicacion.CasosDeUso.Categorias;
+using Bodinis.LogicaNegocio.Entidades;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +83,14 @@ builder.Services.AddScoped<ICUDeactivate, DesactivarProducto>();
 builder.Services.AddScoped<ICUGetAll<ProductoDtoListado>, GetAllProductos>();
 builder.Services.AddScoped<ICUGetById<ProductoDtoListado>, GetProductoById>();
 builder.Services.AddScoped<ICUUpdate<ProductoDtoModificar>, UpdateProducto>();
+
+// Caso de uso: CRUD Categoria
+builder.Services.AddScoped<ICUAdd<CategoriaDtoAlta>, AddCategoria>();
+builder.Services.AddScoped<ICUGetAll<CategoriaDtoListado>, GetAllCategorias>();
+builder.Services.AddScoped<ICUGetById<CategoriaDtoListado>, GetCategoriaById>();
+builder.Services.AddScoped<ICUUpdate<CategoriaDtoModificar>, UpdateCategoria>();
+builder.Services.AddScoped<ICUDelete<Categoria>, DeleteCategoria>();
+
 
 
 // Cargar datos iniciales a la base de datos
