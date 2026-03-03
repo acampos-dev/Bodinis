@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bodinis.LogicaNegocio.Entidades;
+
+
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class IRepositorioVenta
+    public interface IRepositorioVenta:
+        IRepositorioAdd<Venta>,
+        IRepositorioGetById<Venta>,
+        IRepositorioGetAll<Venta>
     {
+        IEnumerable<Venta> GetByRango(DateTime desdeInclusive, DateTime hastaExclusivo);
+
+        int GetTotalVentasDelDia(DateOnly fecha);
+        int GetTotalVentasDelMes(int anio, int mes);
+        int GetTotalVentasDelAnio(int anio);
     }
 }

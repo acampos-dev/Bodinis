@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bodinis.LogicaNegocio.Entidades;
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class IRepositorioCaja
+    public interface IRepositorioCaja :
+         IRepositorioAdd<Caja>,
+         IRepositorioUpdate<Caja>,
+         IRepositorioGetById<Caja>,
+         IRepositorioGetAll<Caja>
     {
+        Caja GetCajaAbierta();
+        IEnumerable<Caja> GetCajasCerradas(DateTime desdeInclusive, DateTime hastaExclusivo);
+        Caja GetCajaConVentas(int cajaId);
     }
 }
