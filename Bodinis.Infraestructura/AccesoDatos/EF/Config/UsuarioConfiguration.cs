@@ -57,7 +57,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
                    .IsRequired()
                    .HasConversion(
                         v => v.ToString().ToUpper(), // Guarda el nombre en mayúsculas
-                        v => (RolUsuario)Enum.Parse(typeof(RolUsuario), v) // Recupera el Enum
+                         v => (RolUsuario)Enum.Parse(typeof(RolUsuario), v, true) // Recupera el Enum
                    )
                    .HasMaxLength(20);
 
