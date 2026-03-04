@@ -8,6 +8,7 @@ Sistema de gestión para rotisería con delivery propio.
 - ASP.NET Web API
 - Bootstrap
 - Entity Framework Core
-
+- QuestPDF Framework
+- Chart.js graficas estadisticas
 ## Estado del proyecto
 En desarrollo (MVP)
