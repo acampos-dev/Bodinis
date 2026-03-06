@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Panel Admin";
+}
+
+<section class="admin-dashboard">
+    <div class="admin-topbar">
+        <div>
+            <p class="section-kicker">Backoffice</p>
+            <h1>Panel de ventas del dia</h1>
+        </div>
+        <button id="logoutBtn" class="btn btn-bod-light">Cerrar sesion</button>
+    </div>
+
+    <div class="admin-grid">
+        <article class="admin-card">
+            <h2>Ventas hoy</h2>
+            <p class="admin-metric" id="ventasDiaTotal">$ 0</p>
+            <p id="ventasDiaCantidad">0 ventas</p>
+            <button id="refreshResumenBtn" class="btn btn-bod-orange btn-sm">Actualizar</button>
+        </article>
+
+        <article class="admin-card">
+            <h2>Ventas del mes</h2>
+            <p class="admin-metric" id="ventasMesTotal">$ 0</p>
+            <p id="ventasMesCantidad">0 ventas</p>
+            <div class="admin-inline-fields">
+                <input id="anioInput" type="number" min="2020" step="1" />
+                <input id="mesInput" type="number" min="1" max="12" step="1" />
+                <button id="buscarMesBtn" class="btn btn-bod-light btn-sm">Ver</button>
+            </div>
+        </article>
+    </div>
+
+    <article class="admin-card admin-card-large">
+        <div class="admin-card-header">
+            <h2>Agregar pedido</h2>
+            <span class="admin-hint">Selecciona productos y cantidades</span>
+        </div>
+
+        <form id="pedidoForm" class="admin-form">
+            <div class="admin-inline-fields admin-form-meta">
+                <div>
+                    <label for="usuarioId">Usuario Id</label>
+                    <input id="usuarioId" type="number" min="1" required />
+                </div>
+                <div>
+                    <label for="tipoPedido">Tipo</label>
+                    <select id="tipoPedido">
+                        <option value="Mostrador">Mostrador</option>
+                        <option value="Delivery">Delivery</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="productosWrap" class="admin-products-grid"></div>
+
+            <button type="submit" class="btn btn-bod-orange">Crear pedido</button>
+        </form>
+
+        <p id="pedidoMsg" class="admin-message"></p>
+    </article>
+</section>
+
+@section Scripts {
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
+}

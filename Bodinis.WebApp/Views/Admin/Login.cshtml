@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Login Admin";
+}
+
+<section class="admin-login-shell">
+    <div class="admin-login-card">
+        <p class="section-kicker">Panel Bodini's</p>
+        <h1>Ingreso de administrador</h1>
+        <p class="admin-login-copy">Inicia sesion para ver ventas del dia y cargar pedidos en mostrador o delivery.</p>
+
+        <form id="loginForm" class="admin-form">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="admin@bodinis.com" required />
+
+            <label for="password">Contrasena</label>
+            <input id="password" name="password" type="password" placeholder="********" required />
+
+            <button type="submit" class="btn btn-bod-orange w-100">Ingresar</button>
+        </form>
+
+        <p id="loginMessage" class="admin-message"></p>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/admin-login.js" asp-append-version="true"></script>
+}
