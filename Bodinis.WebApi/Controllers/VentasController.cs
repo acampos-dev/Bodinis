@@ -12,10 +12,14 @@ namespace Bodinis.WebApi.Controllers
     public class VentasController : ControllerBase
     {
         private readonly ICUGetResumenVentasDia _getResumenVentasDia;
+        private readonly ICUGetResumenVentasMes _getResumenVentasMes;
 
-        public VentasController(ICUGetResumenVentasDia getResumenVentasDia)
+        public VentasController(
+            ICUGetResumenVentasDia getResumenVentasDia,
+            ICUGetResumenVentasMes getResumenVentasMes)
         {
             _getResumenVentasDia = getResumenVentasDia;
+            _getResumenVentasMes = getResumenVentasMes;
         }
 
         [HttpGet("resumen-dia")]
@@ -30,6 +34,35 @@ namespace Bodinis.WebApi.Controllers
                     resumen.CantidadVentas,
                     resumen.TotalVendido,
                     resumen.TicketPromedio);
+
+                return Ok(dto);
+            }
+            catch (InfraestructuraException e)
+            {
+                return StatusCode(e.StatusCode(), new { error = e.Message });
+            }
+        }
+
+        [HttpGet("resumen-mes")]
+        public IActionResult GetResumenMes([FromQuery] int? anio = null, [FromQuery] int? mes = null)
+        {
+            try
+            {
+                var now = DateTime.UtcNow;
+                var anioTarget = anio ?? now.Year;
+                var mesTarget = mes ?? now.Month;
+
+                if (anioTarget <= 0 || mesTarget < 1 || mesTarget > 12)
+                {
+                    return BadRequest(new { error = "Los parametros anio/mes son invalidos." });
+                }
+
+                var resumen = _getResumenVentasMes.Execute(anioTarget, mesTarget);
+                var dto = new VentaDtoResumenMes(
+                    resumen.Anio,
+                    resumen.Mes,
+                    resumen.CantidadVentas,
+                    resumen.TotalVendido);
 
                 return Ok(dto);
             }

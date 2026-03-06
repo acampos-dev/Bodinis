@@ -89,6 +89,7 @@ builder.Services.AddScoped<ICUCrearPedido, CrearPedido>();
 builder.Services.AddScoped<ICUGetPedidoById, GetPedidoById>();
 builder.Services.AddScoped<ICUGetResumenPedidos, GetResumenPedidos>();
 builder.Services.AddScoped<ICUGetResumenVentasDia, GetResumenVentasDia>();
+builder.Services.AddScoped<ICUGetResumenVentasMes, GetResumenVentasMes>();
 builder.Services.AddScoped<ICUAbrirCaja, AbrirCaja>();
 builder.Services.AddScoped<ICUCerrarCaja, CerrarCaja>();
 builder.Services.AddScoped<ICUGetCajaAbierta, GetCajaAbierta>();
@@ -148,3 +149,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
+
