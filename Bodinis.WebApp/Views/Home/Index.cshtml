@@ -1,8 +1,80 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Bodini's";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero" id="inicio">
+    <div class="hero-glow hero-glow-left"></div>
+    <div class="hero-glow hero-glow-right"></div>
+
+    <div class="hero-brand-mark" aria-hidden="true">
+        <span class="brand-ring">BODINI'S</span>
+    </div>
+
+    <p class="hero-kicker">Cocina artesanal</p>
+    <h1>Comida casera lista para salir</h1>
+    <p class="hero-copy">
+        Menus del dia, milanesas, pastas, postres y bebidas para mostrador o delivery.
+        Preparado fresco, porcion generosa y despacho rapido.
+    </p>
+
+    <div class="hero-actions">
+        <a href="#menu" class="btn btn-bod-orange">Ver menu base</a>
+        <a href="#categorias" class="btn btn-bod-light">Ver categorias</a>
+    </div>
+</section>
+
+<section class="section" id="menu">
+    <div class="section-header">
+        <p class="section-kicker">Lo mas vendido</p>
+        <h2>Menu del dia</h2>
+        <p>Los postres se venden por separado y no vienen incluidos con el menu.</p>
+    </div>
+
+    <div class="menu-grid">
+        <article class="menu-card menu-card-featured">
+            <h3>Menu principal</h3>
+            <ul>
+                <li>Salpicon de pollo con tomates</li>
+                <li>Muslo de pollo con boniato y papa al horno</li>
+                <li>Pastel de carne</li>
+                <li>Matambre a la leche con pure</li>
+            </ul>
+        </article>
+
+        <article class="menu-card">
+            <h3>Pastas caseras</h3>
+            <ul>
+                <li>Sorrentinos con caruso</li>
+                <li>Sorrentinos con bolognesa</li>
+                <li>Tallarines caseros con bolognesa</li>
+            </ul>
+        </article>
+
+        <article class="menu-card">
+            <h3>Linea rapida</h3>
+            <ul>
+                <li>Milanesa al horno (carne o pollo)</li>
+                <li>Milanesa al pan (carne o pollo)</li>
+                <li>Empanadas variadas</li>
+                <li>Tartas y bunuelos</li>
+            </ul>
+        </article>
+    </div>
+</section>
+
+<section class="section section-soft" id="categorias">
+    <div class="section-header">
+        <p class="section-kicker">Operacion Bodini's</p>
+        <h2>Categorias de producto</h2>
+    </div>
+
+    <div class="chips-wrap">
+        <span class="chip">Menus</span>
+        <span class="chip">Pastas</span>
+        <span class="chip">Milanesas</span>
+        <span class="chip">Empanadas</span>
+        <span class="chip">Tartas</span>
+        <span class="chip">Bebidas</span>
+        <span class="chip">Postres</span>
+    </div>
+</section>

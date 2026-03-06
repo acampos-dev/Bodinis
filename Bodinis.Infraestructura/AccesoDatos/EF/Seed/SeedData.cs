@@ -1,4 +1,4 @@
-﻿using Bodinis.LogicaNegocio.Entidades;
+using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Enums;
 using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.Vo;
@@ -23,7 +23,6 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             {
                 Console.WriteLine(">>> EMPEZANDO SEED...");
 
-                // Asegurar que la base de datos existe
                 _context.Database.EnsureCreated();
 
                 SeedUsuarios();
@@ -33,7 +32,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             }
             catch (Exception ex)
             {
-                Console.WriteLine($">>> ERROR CRÍTICO EN SEED: {ex.Message}");
+                Console.WriteLine($">>> ERROR CRITICO EN SEED: {ex.Message}");
                 if (ex.InnerException != null)
                 {
                     Console.WriteLine($">>> DETALLE: {ex.InnerException.Message}");
@@ -80,8 +79,18 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
         {
             Console.WriteLine(">>> VERIFICANDO CATEGORIAS...");
 
-            // 1. Asegurar Categorías
-            var nombresCategorias = new[] { "Pizzas", "Milanesas", "Bebidas" };
+            var nombresCategorias = new[]
+            {
+                "Menus",
+                "Pastas",
+                "Milanesas",
+                "Empanadas",
+                "Tartas",
+                "Frituras",
+                "Bebidas",
+                "Postres"
+            };
+
             foreach (var nombreCat in nombresCategorias)
             {
                 if (!_context.Categorias.Any(c => c.Nombre == nombreCat))
@@ -91,57 +100,86 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             }
             _context.SaveChanges();
 
-            // 2. Obtener categorías en memoria para usarlas como referencia
-            var categoriasExistentes = _context.Categorias.ToDictionary(c => c.Nombre, c => c);
-
-            Console.WriteLine(">>> VERIFICANDO PRODUCTOS...");
-
-            // 3. Obtener nombres de productos de forma segura (Evaluación en cliente para evitar error de traducción)
+            var categorias = _context.Categorias.ToDictionary(c => c.Nombre, c => c);
             var nombresEnDb = _context.Productos
                 .AsEnumerable()
                 .Select(p => p.NombreProducto.Valor)
-                .ToList();
+                .ToHashSet();
 
-            // 4. Carga de productos
+            Console.WriteLine(">>> VERIFICANDO PRODUCTOS...");
 
-            // Pizza
-            if (!nombresEnDb.Contains("Pizza Muzzarella"))
-            {
-                _context.Productos.Add(new Producto(
-                    new VoNombreProducto("Pizza Muzzarella"),
-                    new VoPrecio(450),
-                    true,
-                    20,
-                    categoriasExistentes["Pizzas"]
-                ));
-            }
+            // Menus
+            AddProductoSiNoExiste("Salpicon de pollo con tomates", 390, 18, "Menus", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Muslo de pollo con boniato y papa al horno", 430, 20, "Menus", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Pastel de carne", 410, 16, "Menus", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Matambre a la leche con pure", 520, 12, "Menus", categorias, nombresEnDb);
 
-            // Milanesa
-            if (!nombresEnDb.Contains("Milanesa Napolitana"))
-            {
-                _context.Productos.Add(new Producto(
-                    new VoNombreProducto("Milanesa Napolitana"),
-                    new VoPrecio(620),
-                    true,
-                    15,
-                    categoriasExistentes["Milanesas"]
-                ));
-            }
+            // Pastas
+            AddProductoSiNoExiste("Sorrentinos con caruso", 460, 14, "Pastas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Sorrentinos con bolognesa", 460, 14, "Pastas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Tallarines caseros con bolognesa", 390, 18, "Pastas", categorias, nombresEnDb);
 
-            // Bebida
-            if (!nombresEnDb.Contains("Coca Cola 1.5L"))
-            {
-                _context.Productos.Add(new Producto(
-                    new VoNombreProducto("Coca Cola 1.5L"),
-                    new VoPrecio(210),
-                    true,
-                    40,
-                    categoriasExistentes["Bebidas"]
-                ));
-            }
+            // Milanesas
+            AddProductoSiNoExiste("Milanesa al horno de carne", 380, 22, "Milanesas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Milanesa al horno de pollo", 360, 22, "Milanesas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Milanesa al pan de carne", 350, 24, "Milanesas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Milanesa al pan de pollo", 330, 24, "Milanesas", categorias, nombresEnDb);
+
+            // Empanadas
+            AddProductoSiNoExiste("Empanada de carne", 85, 80, "Empanadas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Empanada de jamon y queso", 85, 80, "Empanadas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Empanada de carne y cheddar", 95, 70, "Empanadas", categorias, nombresEnDb);
+
+            // Tartas
+            AddProductoSiNoExiste("Tarta de jamon y queso", 340, 14, "Tartas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Tarta pascualina", 340, 14, "Tartas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Tarta de pollo", 350, 12, "Tartas", categorias, nombresEnDb);
+
+            // Frituras
+            AddProductoSiNoExiste("Bunuelos", 190, 22, "Frituras", categorias, nombresEnDb);
+
+            // Bebidas
+            AddProductoSiNoExiste("Coca Cola 1.5L", 220, 40, "Bebidas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Coca Cola 600ml", 130, 50, "Bebidas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Sprite 1.5L", 220, 30, "Bebidas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Fanta 1.5L", 220, 30, "Bebidas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Agua Salus 1.5L", 120, 45, "Bebidas", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Salus Frutte 1.5L", 170, 35, "Bebidas", categorias, nombresEnDb);
+
+            // Postres (se venden por separado)
+            AddProductoSiNoExiste("Ensalada de fruta", 170, 20, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Arroz con leche", 160, 18, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Crema de vainilla", 160, 18, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Crema de vainilla y chocolate", 170, 18, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Torta de manzana", 190, 15, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Alfajor artesanal", 120, 30, "Postres", categorias, nombresEnDb);
+            AddProductoSiNoExiste("Cookie artesanal", 110, 30, "Postres", categorias, nombresEnDb);
 
             _context.SaveChanges();
             Console.WriteLine($">>> PRODUCTOS PROCESADOS. TOTAL EN DB: {_context.Productos.Count()}");
+        }
+
+        private void AddProductoSiNoExiste(
+            string nombre,
+            int precio,
+            int stock,
+            string categoria,
+            IReadOnlyDictionary<string, Categoria> categorias,
+            ISet<string> nombresEnDb)
+        {
+            if (nombresEnDb.Contains(nombre))
+            {
+                return;
+            }
+
+            _context.Productos.Add(new Producto(
+                new VoNombreProducto(nombre),
+                new VoPrecio(precio),
+                true,
+                stock,
+                categorias[categoria]));
+
+            nombresEnDb.Add(nombre);
         }
     }
 }
