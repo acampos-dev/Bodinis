@@ -1,4 +1,4 @@
-﻿using Bodinis.LogicaNegocio.Enums;
+using Bodinis.LogicaNegocio.Enums;
 
 namespace Bodinis.LogicaNegocio.Entidades
 {
@@ -13,14 +13,22 @@ namespace Bodinis.LogicaNegocio.Entidades
         public int Total { get; set; }
         public Usuario Usuario { get; set; }
 
-        public Pedido() { } // Constructor para EF
+        public Pedido()
+        {
+        }
 
-        public Pedido(DateTime fechaHora, TipoPedido tipoPedido, ICollection<DetallePedido> detalles , EstadoPedido estado, int total, Usuario usuario)
+        public Pedido(
+            DateTime fechaHora,
+            TipoPedido tipoPedido,
+            ICollection<DetallePedido> detalles,
+            EstadoPedido estado,
+            int total,
+            Usuario usuario)
         {
             FechaHora = fechaHora;
             TipoPedido = tipoPedido;
             Estado = estado;
-            Detalles = new List<DetallePedido>();
+            Detalles = detalles ?? new List<DetallePedido>();
             Total = total;
             Usuario = usuario;
         }
