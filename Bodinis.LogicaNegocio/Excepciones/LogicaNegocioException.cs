@@ -1,24 +1,22 @@
-﻿
 namespace Bodinis.LogicaNegocio.Excepciones
 {
-    public abstract class LogicaNegocioException: Exception
+    public abstract class LogicaNegocioException : Exception
     {
-        private string _message;
-        public LogicaNegocioException()
+        protected LogicaNegocioException()
+            : base("Se produjo un error de validacion de negocio.")
         {
         }
 
-        public LogicaNegocioException(string message) : base(message)
+        protected LogicaNegocioException(string message)
+            : base(string.IsNullOrWhiteSpace(message)
+                ? "Se produjo un error de validacion de negocio."
+                : message)
         {
-            _message = message;
         }
 
         public Error Error()
         {
-            return new Error(
-                400,
-                _message
-                );
+            return new Error(400, Message);
         }
     }
 }

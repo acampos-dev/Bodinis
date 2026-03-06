@@ -1,9 +1,9 @@
-using Bodinis.LogicaAplicacion.DTOs.Ventas;
+using Bodinis.LogicaNegocio.ModelosCasosUso;
 
 namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
     public interface ICUGetResumenVentasDia
     {
-        VentaDtoResumenPeriodo Execute(DateOnly fecha);
+        ResumenVentasDia Execute(DateOnly fecha);
     }
 }

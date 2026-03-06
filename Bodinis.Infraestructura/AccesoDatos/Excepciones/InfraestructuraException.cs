@@ -1,19 +1,24 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using Bodinis.LogicaNegocio.Excepciones;
 
 namespace Bodinis.Infraestructura.AccesoDatos.Excepciones
 {
-    public abstract class InfraestructuraException: Exception
+    public abstract class InfraestructuraException : Exception
     {
-        string _message;
-        public InfraestructuraException() 
+        protected InfraestructuraException()
+            : base("Se produjo un error de infraestructura.")
         {
         }
-        public InfraestructuraException(string message) : base(message) 
+
+        protected InfraestructuraException(string message)
+            : base(string.IsNullOrWhiteSpace(message)
+                ? "Se produjo un error de infraestructura."
+                : message)
         {
-            _message = message;
         }
-        protected InfraestructuraException(SerializationInfo info, StreamingContext context) : base(info, context) 
+
+        protected InfraestructuraException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 
@@ -21,13 +26,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.Excepciones
 
         public Error Error()
         {
-            return new Error(
-            
-
-               StatusCode(),
-               _message
-               );
-
-        }   
+            return new Error(StatusCode(), Message);
+        }
     }
 }

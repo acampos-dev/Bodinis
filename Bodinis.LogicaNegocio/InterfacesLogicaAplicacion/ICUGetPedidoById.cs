@@ -2,8 +2,8 @@ using Bodinis.LogicaNegocio.Entidades;
 
 namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
-    public interface ICUAbrirCaja
+    public interface ICUGetPedidoById
     {
-        Caja Execute(int montoApertura);
+        Pedido Execute(int id);
     }
 }

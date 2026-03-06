@@ -1,5 +1,4 @@
-using Bodinis.LogicaAplicacion.DTOs.Cajas;
-using Bodinis.LogicaAplicacion.Mappers;
+using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 
@@ -14,10 +13,9 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Cajas
             _repoCaja = repoCaja;
         }
 
-        public CajaDtoResumen Execute()
+        public Caja Execute()
         {
-            var caja = _repoCaja.GetCajaAbierta();
-            return CajaReportesMapper.ToResumenDto(caja);
+            return _repoCaja.GetCajaAbierta();
         }
     }
 }

@@ -1,9 +1,9 @@
-using Bodinis.LogicaAplicacion.DTOs.Cajas;
+using Bodinis.LogicaNegocio.Entidades;
 
 namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
     public interface ICUGetCajaAbierta
     {
-        CajaDtoResumen Execute();
+        Caja Execute();
     }
 }

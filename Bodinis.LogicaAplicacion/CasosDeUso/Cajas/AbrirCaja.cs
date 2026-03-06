@@ -1,5 +1,4 @@
-using Bodinis.LogicaAplicacion.DTOs.Cajas;
-using Bodinis.LogicaAplicacion.Mappers;
+using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
@@ -15,7 +14,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Cajas
             _repoCaja = repoCaja;
         }
 
-        public CajaDtoResumen Execute(int montoApertura)
+        public Caja Execute(int montoApertura)
         {
             if (montoApertura < 0)
             {
@@ -28,14 +27,9 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Cajas
                 throw new DatosInvalidosException("Ya existe una caja abierta.");
             }
 
-            var caja = new Bodinis.LogicaNegocio.Entidades.Caja(
-                DateTime.UtcNow,
-                montoApertura,
-                0,
-                new List<Bodinis.LogicaNegocio.Entidades.Venta>());
-
+            var caja = new Caja(DateTime.UtcNow, montoApertura, 0, new List<Venta>());
             _repoCaja.Add(caja);
-            return CajaReportesMapper.ToResumenDto(caja);
+            return caja;
         }
     }
 }

@@ -1,5 +1,6 @@
 using Bodinis.Infraestructura.AccesoDatos.Excepciones;
 using Bodinis.LogicaAplicacion.DTOs.Cajas;
+using Bodinis.LogicaAplicacion.Mappers;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Microsoft.AspNetCore.Authorization;
@@ -32,8 +33,8 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var resumen = _abrirCaja.Execute(dto.MontoApertura);
-                return Ok(resumen);
+                var caja = _abrirCaja.Execute(dto.MontoApertura);
+                return Ok(CajaReportesMapper.ToResumenDto(caja));
             }
             catch (InfraestructuraException e)
             {
@@ -51,8 +52,8 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var resumen = _cerrarCaja.Execute();
-                return Ok(resumen);
+                var caja = _cerrarCaja.Execute();
+                return Ok(CajaReportesMapper.ToResumenDto(caja, caja.FechaCierre));
             }
             catch (InfraestructuraException e)
             {
@@ -69,8 +70,8 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var resumen = _getCajaAbierta.Execute();
-                return Ok(resumen);
+                var caja = _getCajaAbierta.Execute();
+                return Ok(CajaReportesMapper.ToResumenDto(caja));
             }
             catch (InfraestructuraException e)
             {

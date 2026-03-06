@@ -86,7 +86,7 @@ builder.Services.AddScoped<ICUDelete<Categoria>, DeleteCategoria>();
 
 // Casos de uso pedidos/ventas/caja
 builder.Services.AddScoped<ICUCrearPedido, CrearPedido>();
-builder.Services.AddScoped<ICUGetById<Bodinis.LogicaAplicacion.DTOs.Pedidos.PedidoDtoTicket>, GetPedidoTicketById>();
+builder.Services.AddScoped<ICUGetPedidoById, GetPedidoById>();
 builder.Services.AddScoped<ICUGetResumenPedidos, GetResumenPedidos>();
 builder.Services.AddScoped<ICUGetResumenVentasDia, GetResumenVentasDia>();
 builder.Services.AddScoped<ICUAbrirCaja, AbrirCaja>();

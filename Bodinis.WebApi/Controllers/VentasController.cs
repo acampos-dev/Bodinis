@@ -1,4 +1,5 @@
 using Bodinis.Infraestructura.AccesoDatos.Excepciones;
+using Bodinis.LogicaAplicacion.DTOs.Ventas;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,13 @@ namespace Bodinis.WebApi.Controllers
             {
                 var fechaTarget = fecha ?? DateOnly.FromDateTime(DateTime.UtcNow);
                 var resumen = _getResumenVentasDia.Execute(fechaTarget);
-                return Ok(resumen);
+                var dto = new VentaDtoResumenPeriodo(
+                    resumen.Fecha,
+                    resumen.CantidadVentas,
+                    resumen.TotalVendido,
+                    resumen.TicketPromedio);
+
+                return Ok(dto);
             }
             catch (InfraestructuraException e)
             {

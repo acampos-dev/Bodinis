@@ -1,9 +1,9 @@
-using Bodinis.LogicaAplicacion.DTOs.Pedidos;
+using Bodinis.LogicaNegocio.ModelosCasosUso;
 
 namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
     public interface ICUGetResumenPedidos
     {
-        PedidoDtoResumenPeriodo Execute(DateOnly desde, DateOnly hasta);
+        ResumenPedidosPeriodo Execute(DateOnly desde, DateOnly hasta);
     }
 }

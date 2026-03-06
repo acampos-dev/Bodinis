@@ -1,4 +1,3 @@
-﻿using Bodinis.LogicaAplicacion.DTOs;
 using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.LogicaNegocio.Excepciones;
@@ -8,7 +7,7 @@ namespace Bodinis.WebApi.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController: ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly ILogin<LoginDtoRequest> _login;
 
@@ -35,10 +34,8 @@ namespace Bodinis.WebApi.Controllers
             }
             catch (Exception)
             {
-                return StatusCode(500, "Error interno del servidor");
+                return StatusCode(500, new { error = "Error interno del servidor" });
             }
         }
-
-
     }
 }

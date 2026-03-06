@@ -1,7 +1,6 @@
-using Bodinis.LogicaAplicacion.DTOs.Pedidos;
-using Bodinis.LogicaAplicacion.Mappers;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
+using Bodinis.LogicaNegocio.ModelosCasosUso;
 
 namespace Bodinis.LogicaAplicacion.CasosDeUso.Pedidos
 {
@@ -14,7 +13,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Pedidos
             _repoPedido = repoPedido;
         }
 
-        public PedidoDtoResumenPeriodo Execute(DateOnly desde, DateOnly hasta)
+        public ResumenPedidosPeriodo Execute(DateOnly desde, DateOnly hasta)
         {
             var desdeDt = desde.ToDateTime(TimeOnly.MinValue);
             var hastaExclusivo = hasta.ToDateTime(TimeOnly.MinValue).AddDays(1);
@@ -24,8 +23,16 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Pedidos
             var total = pedidos.Sum(p => p.Total);
             var delivery = pedidos.Count(p => p.TipoPedido == Bodinis.LogicaNegocio.Enums.TipoPedido.Delivery);
             var retiro = pedidos.Count(p => p.TipoPedido == Bodinis.LogicaNegocio.Enums.TipoPedido.Mostrador);
+            var ticketPromedio = cantidad > 0 ? total / cantidad : 0;
 
-            return PedidoReportesMapper.ToResumenPeriodoDto(desde, hasta, cantidad, total, delivery, retiro);
+            return new ResumenPedidosPeriodo(
+                desde,
+                hasta,
+                cantidad,
+                total,
+                ticketPromedio,
+                delivery,
+                retiro);
         }
     }
 }

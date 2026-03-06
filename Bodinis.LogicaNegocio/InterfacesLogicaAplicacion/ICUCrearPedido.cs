@@ -1,9 +1,10 @@
-using Bodinis.LogicaAplicacion.DTOs.Pedidos;
+using Bodinis.LogicaNegocio.Enums;
+using Bodinis.LogicaNegocio.ModelosCasosUso;
 
 namespace Bodinis.LogicaNegocio.InterfacesLogicaAplicacion
 {
     public interface ICUCrearPedido
     {
-        PedidoDtoTicket Execute(PedidoDtoCrear dto);
+        int Execute(int usuarioId, TipoPedido tipoPedido, IEnumerable<PedidoItemInput> items);
     }
 }

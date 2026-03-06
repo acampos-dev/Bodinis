@@ -1,10 +1,14 @@
-﻿
 namespace Bodinis.LogicaNegocio.Excepciones
 {
-    public class UsuarioInactivoException: LogicaNegocioException
+    public class UsuarioInactivoException : LogicaNegocioException
     {
-        public UsuarioInactivoException() { }
-        public UsuarioInactivoException(string message) : base(message)
+        public UsuarioInactivoException()
+            : base("Usuario inactivo.")
+        {
+        }
+
+        public UsuarioInactivoException(string message)
+            : base(message)
         {
         }
     }

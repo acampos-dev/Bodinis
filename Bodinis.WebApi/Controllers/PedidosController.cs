@@ -1,7 +1,10 @@
 using Bodinis.Infraestructura.AccesoDatos.Excepciones;
 using Bodinis.LogicaAplicacion.DTOs.Pedidos;
+using Bodinis.LogicaAplicacion.Mappers;
+using Bodinis.LogicaNegocio.Enums;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
+using Bodinis.LogicaNegocio.ModelosCasosUso;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,16 +16,16 @@ namespace Bodinis.WebApi.Controllers
     public class PedidosController : ControllerBase
     {
         private readonly ICUCrearPedido _crearPedido;
-        private readonly ICUGetById<PedidoDtoTicket> _getPedidoTicketById;
+        private readonly ICUGetPedidoById _getPedidoById;
         private readonly ICUGetResumenPedidos _getResumenPedidos;
 
         public PedidosController(
             ICUCrearPedido crearPedido,
-            ICUGetById<PedidoDtoTicket> getPedidoTicketById,
+            ICUGetPedidoById getPedidoById,
             ICUGetResumenPedidos getResumenPedidos)
         {
             _crearPedido = crearPedido;
-            _getPedidoTicketById = getPedidoTicketById;
+            _getPedidoById = getPedidoById;
             _getResumenPedidos = getResumenPedidos;
         }
 
@@ -31,8 +34,18 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var ticket = _crearPedido.Execute(dto);
-                return CreatedAtAction(nameof(GetTicketById), new { id = ticket.PedidoId }, ticket);
+                if (!Enum.TryParse<TipoPedido>(dto.TipoPedido, true, out var tipoPedido))
+                {
+                    return BadRequest(new { error = "Tipo de pedido inválido." });
+                }
+
+                var items = dto.Items.Select(i => new PedidoItemInput(i.ProductoId, i.Cantidad));
+                var id = _crearPedido.Execute(dto.UsuarioId, tipoPedido, items);
+
+                var pedido = _getPedidoById.Execute(id);
+                var ticket = PedidoReportesMapper.ToTicketDto(pedido, pedido.Usuario.NombreCompleto);
+
+                return CreatedAtAction(nameof(GetTicketById), new { id }, ticket);
             }
             catch (InfraestructuraException e)
             {
@@ -49,7 +62,8 @@ namespace Bodinis.WebApi.Controllers
         {
             try
             {
-                var ticket = _getPedidoTicketById.Execute(id);
+                var pedido = _getPedidoById.Execute(id);
+                var ticket = PedidoReportesMapper.ToTicketDto(pedido, pedido.Usuario.NombreCompleto);
                 return Ok(ticket);
             }
             catch (InfraestructuraException e)
@@ -73,7 +87,16 @@ namespace Bodinis.WebApi.Controllers
                 }
 
                 var resumen = _getResumenPedidos.Execute(desde, hasta);
-                return Ok(resumen);
+                var dto = new PedidoDtoResumenPeriodo(
+                    resumen.FechaDesde,
+                    resumen.FechaHasta,
+                    resumen.CantidadPedidos,
+                    resumen.TotalFacturado,
+                    resumen.TicketPromedio,
+                    resumen.CantidadDelivery,
+                    resumen.CantidadRetiro);
+
+                return Ok(dto);
             }
             catch (InfraestructuraException e)
             {

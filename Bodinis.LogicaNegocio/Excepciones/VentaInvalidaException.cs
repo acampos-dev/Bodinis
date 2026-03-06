@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Bodinis.LogicaNegocio.Excepciones
 {
-    internal class VentaInvalidaException
+    public class VentaInvalidaException : LogicaNegocioException
     {
+        public VentaInvalidaException()
+            : base("La venta es invalida.")
+        {
+        }
+
+        public VentaInvalidaException(string message)
+            : base(message)
+        {
+        }
     }
 }

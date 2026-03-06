@@ -1,5 +1,4 @@
-using Bodinis.LogicaAplicacion.DTOs.Cajas;
-using Bodinis.LogicaAplicacion.Mappers;
+using Bodinis.LogicaNegocio.Entidades;
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
@@ -15,7 +14,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Cajas
             _repoCaja = repoCaja;
         }
 
-        public CajaDtoResumen Execute()
+        public Caja Execute()
         {
             var caja = _repoCaja.GetCajaAbierta();
             if (caja.FechaCierre != null)
@@ -28,7 +27,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Cajas
             caja.FechaCierre = DateTime.UtcNow;
 
             _repoCaja.Update(caja.Id, caja);
-            return CajaReportesMapper.ToResumenDto(caja, caja.FechaCierre);
+            return caja;
         }
     }
 }

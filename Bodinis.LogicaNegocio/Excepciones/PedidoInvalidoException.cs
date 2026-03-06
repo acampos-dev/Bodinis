@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Bodinis.LogicaNegocio.Excepciones
 {
-    internal class PedidoInvalidoException
+    public class PedidoInvalidoException : LogicaNegocioException
     {
+        public PedidoInvalidoException()
+            : base("El pedido es invalido.")
+        {
+        }
+
+        public PedidoInvalidoException(string message)
+            : base(message)
+        {
+        }
     }
 }
