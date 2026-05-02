@@ -7,7 +7,7 @@ using Bodinis.LogicaNegocio.Vo;
 
 namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
 {
-    public class LoginUsuario : ILogin<LoginDtoRequest>
+    public class LoginUsuario : ILogin<LoginDtoRequest, LoginDtoResponse>
     {
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IJwtGenerator _jwtGenerator;
@@ -23,7 +23,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
             _passwordHasher = passwordHasher;
         }
 
-        public string Execute(LoginDtoRequest request)
+        public LoginDtoResponse Execute(LoginDtoRequest request)
         {
             var email = new VoEmail(request.Email);
 
@@ -38,10 +38,20 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
 
             usuario.ValidarLogin(passwordOk);
 
-            return _jwtGenerator.GenerateToken(usuario);
+            return new LoginDtoResponse(
+                 usuario.Id,
+                usuario.NombreCompleto,
+                usuario.Email.Email,
+                usuario.UserName,
+                usuario.Rol.ToString(),
+                _jwtGenerator.GenerateToken(usuario)
+                );
+                
+        }
+
         }
 
 
 
     }
-}
+

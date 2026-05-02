@@ -71,7 +71,7 @@ builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
 // =======================
 
 // Caso de uso: Login Usuario
-builder.Services.AddScoped<ILogin<LoginDtoRequest>, LoginUsuario>();
+builder.Services.AddScoped<ILogin<LoginDtoRequest, LoginDtoResponse>, LoginUsuario>();
 
 // Caso de uso: CRUD Producto
 builder.Services.AddScoped<ICUAdd<ProductoDtoAlta>, AddProducto>();
