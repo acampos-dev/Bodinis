@@ -1,7 +1,7 @@
 ﻿namespace Bodinis.LogicaAplicacion.Interfaces
 {
-    public interface ILogin<T>
+    public interface ILogin<TRequest, TResponse>
     {
-        string Execute(T obj);
+        TResponse Execute(TRequest obj);
     }
 }

@@ -1,18 +1,18 @@
-﻿using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
-using Bodinis.LogicaAplicacion.DTOs.Usuarios;
+﻿using Bodinis.LogicaAplicacion.DTOs.Usuarios;
 using Bodinis.LogicaAplicacion.Interfaces;
 using Bodinis.LogicaNegocio.Excepciones;
+using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
 using Bodinis.LogicaNegocio.InterfacesRepositorio;
 using Bodinis.LogicaNegocio.Vo;
 
 namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
 {
-    public class LoginUsuario : ILogin<LoginDtoRequest>
+    public class LoginUsuario : ILogin<LoginDtoRequest, LoginDtoResponse>
     {
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IJwtGenerator _jwtGenerator;
         private readonly IPasswordHasher _passwordHasher;
-            
+
         public LoginUsuario(
             IRepositorioUsuario repositorioUsuario,
             IJwtGenerator jwtGenerator,
@@ -23,7 +23,7 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
             _passwordHasher = passwordHasher;
         }
 
-        public string Execute(LoginDtoRequest request)
+        public LoginDtoResponse Execute(LoginDtoRequest request)
         {
             var email = new VoEmail(request.Email);
 
@@ -38,10 +38,16 @@ namespace Bodinis.LogicaAplicacion.CasosDeUso.Usuarios
 
             usuario.ValidarLogin(passwordOk);
 
-            return _jwtGenerator.GenerateToken(usuario);
+            var token = _jwtGenerator.GenerateToken(usuario);
+
+            return new LoginDtoResponse(
+                usuario.Id,
+                usuario.NombreCompleto,
+                usuario.Email.Email,
+                usuario.UserName,
+                usuario.Rol.ToString(),
+                token
+            );
         }
-
-
-
     }
 }
