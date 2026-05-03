@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bodinis.LogicaNegocio.Entidades;
 
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class IPedidoRepositorio
+    public interface IPedidoRepositorio
     {
+        void Add(Pedido pedido);
+        IEnumerable<Pedido> GetAll();
+        Pedido? GetById(int id); // ? indica que el método puede retornar null
+        void Update(Pedido pedido);
     }
 }

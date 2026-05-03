@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Bodinis.LogicaNegocio.Entidades;
 namespace Bodinis.LogicaNegocio.InterfacesRepositorio
 {
-    internal class IRepositorioVenta
+    public interface IRepositorioVenta
     {
+        void Add (Venta venta);
+        IEnumerable<Venta> GetByFecha(DateTime desde, DateTime hasta);
+
     }
 }
