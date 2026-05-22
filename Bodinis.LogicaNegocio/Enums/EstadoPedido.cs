@@ -6,5 +6,6 @@ namespace Bodinis.LogicaNegocio.Enums
         Pendiente = 1,
         Preparacion = 2,
         Entregado = 3,
+        Cancelado = 4,
     }
 }

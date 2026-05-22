@@ -8,8 +8,10 @@ namespace Bodinis.LogicaNegocio.Entidades
         public int Cantidad { get; set; }
         public int PrecioUnitario { get; set; }
         public int Subtotal { get; set; }
-
-        public Producto Producto { get; set; }
+        public int PedidoId { get; set; }
+        public Pedido? Pedido { get; set; }
+        public int ProductoId { get; set; }
+        public Producto Producto { get; set; } = null!;
 
         public DetallePedido() { } // Constructor para EF
 
@@ -19,6 +21,7 @@ namespace Bodinis.LogicaNegocio.Entidades
             PrecioUnitario = precioUnitario;
             Subtotal = cantidad * precioUnitario;
             Producto = producto;
+            ProductoId = producto.Id;
         }
     }
 }

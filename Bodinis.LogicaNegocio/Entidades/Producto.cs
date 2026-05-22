@@ -9,11 +9,11 @@ namespace Bodinis.LogicaNegocio.Entidades
     public class Producto: IValidable, IEquatable<Producto>
     {
         public int Id { get; private set; }
-        public VoNombreProducto NombreProducto { get; private set; }
-        public VoPrecio Precio { get; private set; }
+        public VoNombreProducto NombreProducto { get; private set; } = null!;
+        public VoPrecio Precio { get; private set; } = null!;
         public bool Disponible { get; private set; }
         public int Stock { get; private set; }
-        public Categoria Categoria { get; private set; }
+        public Categoria Categoria { get; private set; } = null!;
 
         public Producto() { } // Constructor vacio para EF
 

@@ -9,10 +9,10 @@ namespace Bodinis.LogicaNegocio.Entidades
     public class Usuario
     {
         public int Id { get; private set; }
-        public string NombreCompleto { get;private set; }
-        public VoEmail Email { get;private set; }
-        public string UserName { get;private set; }
-        public string PasswordHash { get;private set; }
+        public string NombreCompleto { get;private set; } = string.Empty;
+        public VoEmail Email { get;private set; } = null!;
+        public string UserName { get;private set; } = string.Empty;
+        public string PasswordHash { get;private set; } = string.Empty;
         public bool Activo { get;private set; }
         public RolUsuario Rol{ get;private set; }
 

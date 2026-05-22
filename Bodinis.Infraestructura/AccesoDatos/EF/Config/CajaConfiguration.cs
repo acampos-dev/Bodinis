@@ -17,11 +17,6 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Config
             builder.Property(c => c.MontoCierre).IsRequired();
             builder.Property(c => c.EstaAbierta).IsRequired();
 
-            builder.HasMany(c => c.Ventas)
-                .WithOne()
-                .HasForeignKey("CajaId")
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasMany(c => c.Gastos)
                 .WithOne(g => g.Caja)
                 .HasForeignKey(g => g.CajaId)

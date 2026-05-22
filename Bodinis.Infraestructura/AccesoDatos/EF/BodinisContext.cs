@@ -12,6 +12,9 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
         public DbSet<Caja> Cajas { get; set; }
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<Venta> Ventas { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<DetallePedido> DetallesPedido { get; set; }
+        public DbSet<MetodoPago> MetodosPago { get; set; }
 
 
         public BodinisContext(DbContextOptions<BodinisContext> options) : base(options)
@@ -26,6 +29,10 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
             modelBuilder.ApplyConfiguration(new ProductoConfiguration());
             modelBuilder.ApplyConfiguration(new CajaConfiguration());
             modelBuilder.ApplyConfiguration(new GastoConfiguration());
+            modelBuilder.ApplyConfiguration(new PedidoConfiguration());
+            modelBuilder.ApplyConfiguration(new DetallePedidoConfiguration());
+            modelBuilder.ApplyConfiguration(new MetodoPagoConfiguration());
+            modelBuilder.ApplyConfiguration(new VentaConfiguration());
         }   
         
     }

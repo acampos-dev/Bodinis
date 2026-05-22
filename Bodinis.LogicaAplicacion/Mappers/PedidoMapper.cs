@@ -14,6 +14,9 @@ namespace Bodinis.LogicaAplicacion.Mappers
             return new Pedido(
                 fechaHora: DateTime.UtcNow,
                 tipoPedido: dto.TipoPedido,
+                nombreCliente: dto.NombreCliente,
+                telefonoCliente: dto.TelefonoCliente,
+                direccionCliente: dto.DireccionCliente,
                 detalles: detallesList,
                 estado: EstadoPedido.Pendiente,
                 total: total,

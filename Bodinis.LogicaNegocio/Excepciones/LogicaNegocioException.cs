@@ -3,7 +3,7 @@ namespace Bodinis.LogicaNegocio.Excepciones
 {
     public abstract class LogicaNegocioException: Exception
     {
-        private string _message;
+        private string _message = string.Empty;
         public LogicaNegocioException()
         {
         }

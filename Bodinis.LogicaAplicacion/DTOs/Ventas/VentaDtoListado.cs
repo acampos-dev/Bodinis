@@ -3,7 +3,10 @@ namespace Bodinis.LogicaAplicacion.DTOs.Ventas
 {
     public record VentaDtoListado(int Id,
                                   DateTime FechaHora,
-                                  int TotalVenta)
+                                  int TotalVenta,
+                                  int PedidoId,
+                                  string MetodoPago,
+                                  int CajaId)
     {
     }
 }

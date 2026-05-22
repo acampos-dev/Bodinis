@@ -28,6 +28,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
 
                 SeedUsuarios();
                 SeedCategoriasYProductos();
+                SeedMetodosPago();
 
                 Console.WriteLine(">>> SEED FINALIZADO EXITOSAMENTE <<<");
             }
@@ -78,6 +79,24 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
         private bool ExisteUsuarioPorEmail(string email)
         {
             return _context.Usuarios.Any(u => u.Email.Email == email);
+        }
+
+        private void SeedMetodosPago()
+        {
+            Console.WriteLine(">>> VERIFICANDO METODOS DE PAGO...");
+
+            var nombres = new[] { "Efectivo", "Debito", "Transferencia" };
+
+            foreach (var nombre in nombres)
+            {
+                if (!_context.MetodosPago.Any(m => m.Nombre == nombre))
+                {
+                    _context.MetodosPago.Add(new MetodoPago(nombre));
+                }
+            }
+
+            _context.SaveChanges();
+            Console.WriteLine($">>> METODOS DE PAGO PROCESADOS. TOTAL EN DB: {_context.MetodosPago.Count()}");
         }
 
         private void SeedCategoriasYProductos()

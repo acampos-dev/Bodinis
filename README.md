@@ -31,10 +31,72 @@ La solucion esta organizada por capas:
 - Autenticacion de usuarios con JWT.
 - Gestion de productos y categorias.
 - Registro y gestion de pedidos.
-- Registro de ventas asociado a caja.
+- Gestion de metodos de pago.
+- Registro de ventas asociadas a pedido, metodo de pago y caja.
 - Apertura, consulta y cierre de caja.
 - Registro de gastos asociados a la caja abierta.
 - Calculo de totales de caja: monto inicial, ingresos por ventas, egresos por gastos y saldo calculado.
+- Migraciones EF Core y datos iniciales para probar el sistema.
+
+## Credenciales de prueba
+
+Administrador:
+
+```text
+Email: admin@bodinis.com
+Password: Admin123
+```
+
+Empleado:
+
+```text
+Email: empleado@bodinis.com
+Password: Empleado@123
+```
+
+## Endpoints principales
+
+Autenticacion:
+
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+
+Categorias:
+
+- `GET /api/categorias`
+- `GET /api/categorias/{id}`
+- `POST /api/categorias`
+- `PUT /api/categorias/{id}`
+- `DELETE /api/categorias/{id}`
+
+Productos:
+
+- `GET /api/productos`
+- `GET /api/productos/{id}`
+- `POST /api/productos`
+- `PUT /api/productos/{id}`
+- `PATCH /api/productos/{id}/desactivar`
+
+Pedidos:
+
+- `GET /api/pedidos`
+- `GET /api/pedidos/{id}`
+- `POST /api/pedidos`
+- `PATCH /api/pedidos/{id}/estado`
+
+Ventas:
+
+- `GET /api/ventas`
+- `GET /api/ventas/{id}`
+- `POST /api/ventas`
+
+Caja y gastos:
+
+- `GET /api/caja/actual`
+- `POST /api/caja/abrir`
+- `POST /api/caja/cerrar`
+- `GET /api/gastos/caja-actual`
+- `POST /api/gastos`
 
 ## Gastos y caja
 
@@ -47,14 +109,6 @@ Datos registrados por gasto:
 - Monto
 - Categoria opcional
 - Caja asociada
-
-Endpoints principales:
-
-- `GET /api/caja/actual`: obtiene la caja abierta con totales.
-- `POST /api/caja/abrir`: abre una caja nueva.
-- `POST /api/caja/cerrar`: cierra la caja abierta.
-- `GET /api/gastos/caja-actual`: lista los gastos de la caja abierta.
-- `POST /api/gastos`: registra un gasto en la caja abierta.
 
 Ejemplo para registrar gasto:
 
@@ -83,6 +137,24 @@ dotnet run --project Bodinis.WebApi
 
 4. Abrir Swagger en la URL configurada por `launchSettings.json`.
 
+Con el perfil `http`, Swagger queda disponible en:
+
+```text
+http://localhost:5245/swagger
+```
+
+## Flujo sugerido para probar
+
+1. Hacer login con el usuario administrador y copiar el token JWT.
+2. En Swagger, usar `Authorize` con `Bearer {token}`.
+3. Consultar categorias, productos y metodos de pago.
+4. Abrir caja con `POST /api/caja/abrir`.
+5. Crear un pedido con productos existentes.
+6. Registrar la venta del pedido con un metodo de pago.
+7. Registrar un gasto de caja.
+8. Consultar `GET /api/caja/actual` para ver ingresos, egresos y saldo.
+
 ## Estado del proyecto
 
-En desarrollo. El backend ya cuenta con la base para caja y gastos; quedan pendientes integraciones completas de ventas, reportes PDF y vistas MVC segun el alcance final del MVP.
+Backend del MVP funcional.
+Quedan como proximos pasos: reportes PDF, vistas MVC, tests automatizados y mejoras de gestion de usuarios.

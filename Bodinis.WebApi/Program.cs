@@ -19,6 +19,14 @@ using Bodinis.LogicaAplicacion.CasosDeUso.Caja;
 using Bodinis.LogicaAplicacion.CasosDeUso.Gastos;
 using Bodinis.LogicaAplicacion.DTOs.Caja;
 using Bodinis.LogicaAplicacion.DTOs.Gastos;
+using Bodinis.LogicaAplicacion.CasosDeUso.Categorias;
+using Bodinis.LogicaAplicacion.CasosDeUso.MetodoPago;
+using Bodinis.LogicaAplicacion.CasosDeUso.Pedidos;
+using Bodinis.LogicaAplicacion.CasosDeUso.Ventas;
+using Bodinis.LogicaAplicacion.DTOs.Categorias;
+using Bodinis.LogicaAplicacion.DTOs.MetodoPago;
+using Bodinis.LogicaAplicacion.DTOs.Pedidos;
+using Bodinis.LogicaAplicacion.DTOs.Ventas;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +79,9 @@ builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
 builder.Services.AddScoped<IRepositorioCaja, RepositorioCaja>();
 builder.Services.AddScoped<IRepositorioGasto, RepositorioGasto>();
+builder.Services.AddScoped<IPedidoRepositorio, RepositorioPedido>();
+builder.Services.AddScoped<IRepositorioMetodoPago, RepositorioMetodoPago>();
+builder.Services.AddScoped<IRepositorioVenta, RepositorioVenta>();
 
 // =======================
 // Casos de Uso
@@ -85,6 +96,31 @@ builder.Services.AddScoped<ICUDeactivate, DesactivarProducto>();
 builder.Services.AddScoped<ICUGetAll<ProductoDtoListado>, GetAllProductos>();
 builder.Services.AddScoped<ICUGetById<ProductoDtoListado>, GetProductoById>();
 builder.Services.AddScoped<ICUUpdate<ProductoDtoModificar>, UpdateProducto>();
+
+// Caso de uso: CRUD Categoria
+builder.Services.AddScoped<ICUAdd<CategoriaDtoAlta>, AddCategoria>();
+builder.Services.AddScoped<ICUGetAll<CategoriaDtoListado>, GetAllCategorias>();
+builder.Services.AddScoped<ICUGetById<CategoriaDtoListado>, GetCategoriaById>();
+builder.Services.AddScoped<ICUUpdate<CategoriaDtoModificar>, UpdateCategoria>();
+builder.Services.AddScoped<ICUDelete<CategoriaDtoListado>, DeleteCategoria>();
+
+// Caso de uso: CRUD Metodo de Pago
+builder.Services.AddScoped<ICUAdd<MetodoPagoDtoAlta>, AddMetodoPago>();
+builder.Services.AddScoped<ICUGetAll<MetodoPagoDtoListado>, GetAllMetodosPago>();
+builder.Services.AddScoped<ICUGetById<MetodoPagoDtoListado>, GetMetodoPagoById>();
+builder.Services.AddScoped<ICUUpdate<MetodoPagoDtoModificar>, UpdateMetodoPago>();
+builder.Services.AddScoped<ICUDelete<MetodoPagoDtoListado>, DeleteMetodoPago>();
+
+// Caso de uso: Pedidos
+builder.Services.AddScoped<ICUAdd<PedidoDtoAlta>, AddPedido>();
+builder.Services.AddScoped<ICUGetAll<PedidoDtoListado>, GetAllPedidos>();
+builder.Services.AddScoped<ICUGetById<PedidoDtoListado>, GetPedidoById>();
+builder.Services.AddScoped<ICUCambiarEstadoPedido, CambiarEstadoPedido>();
+
+// Caso de uso: Ventas
+builder.Services.AddScoped<ICUAdd<VentaDtoAlta>, RegistrarVenta>();
+builder.Services.AddScoped<ICUGetAll<VentaDtoListado>, GetAllVentas>();
+builder.Services.AddScoped<ICUGetById<VentaDtoListado>, GetVentaById>();
 
 // Caso de uso: Caja
 builder.Services.AddScoped<ICUAdd<CajaDtoAbrir>, AbrirCaja>();
@@ -124,7 +160,8 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasherBodinis>();
 
 var jwtSettings = builder.Configuration
     .GetSection("Jwt")
-    .Get<JwtSettings>();
+    .Get<JwtSettings>()
+    ?? throw new InvalidOperationException("La configuracion Jwt es obligatoria");
 
 var key = Encoding.ASCII.GetBytes(jwtSettings.Key);
 
@@ -154,8 +191,10 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<BodinisContext>();
 
-    // Esto asegura que la DB y las tablas existan antes del Seed
-    context.Database.EnsureCreated();
+    RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(context);
+
+    // Aplica migraciones antes de ejecutar datos iniciales.
+    context.Database.Migrate();
 
     var seed = services.GetRequiredService<SeedData>();
     seed.Run();
@@ -174,3 +213,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
+
+static void RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(BodinisContext context)
+{
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
+           AND OBJECT_ID(N'[Categorias]') IS NOT NULL
+           AND NOT EXISTS (
+                SELECT 1
+                FROM [__EFMigrationsHistory]
+                WHERE [MigrationId] = N'20260301211924_InitialCreate'
+           )
+        BEGIN
+            INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+            VALUES (N'20260301211924_InitialCreate', N'8.0.20')
+        END
+        """);
+}

@@ -179,6 +179,108 @@ namespace Bodinis.Infraestructura.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.MetodoPago", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("MetodosPago", (string)null);
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Pedido", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DireccionCliente")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("FechaHora")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreCliente")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TelefonoCliente")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("TipoPedido")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("Total")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Pedidos", (string)null);
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.DetallePedido", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrecioUnitario")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Subtotal")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PedidoId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("DetallesPedido", (string)null);
+                });
+
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Venta", b =>
                 {
                     b.Property<int>("Id")
@@ -193,6 +295,12 @@ namespace Bodinis.Infraestructura.Migrations
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("MetodoPagoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TotalVenta")
                         .HasColumnType("int");
 
@@ -200,7 +308,31 @@ namespace Bodinis.Infraestructura.Migrations
 
                     b.HasIndex("CajaId");
 
+                    b.HasIndex("MetodoPagoId");
+
+                    b.HasIndex("PedidoId")
+                        .IsUnique();
+
                     b.ToTable("Ventas", (string)null);
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.DetallePedido", b =>
+                {
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Pedido", "Pedido")
+                        .WithMany("Detalles")
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Pedido");
+
+                    b.Navigation("Producto");
                 });
 
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Gasto", b =>
@@ -212,6 +344,17 @@ namespace Bodinis.Infraestructura.Migrations
                         .IsRequired();
 
                     b.Navigation("Caja");
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Pedido", b =>
+                {
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Producto", b =>
@@ -255,11 +398,29 @@ namespace Bodinis.Infraestructura.Migrations
 
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Venta", b =>
                 {
-                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Caja", null)
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Caja", "Caja")
                         .WithMany("Ventas")
                         .HasForeignKey("CajaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.MetodoPago", "MetodoPago")
+                        .WithMany("Ventas")
+                        .HasForeignKey("MetodoPagoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Bodinis.LogicaNegocio.Entidades.Pedido", "Pedido")
+                        .WithOne("Venta")
+                        .HasForeignKey("Bodinis.LogicaNegocio.Entidades.Venta", "PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Caja");
+
+                    b.Navigation("MetodoPago");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Caja", b =>
@@ -272,6 +433,18 @@ namespace Bodinis.Infraestructura.Migrations
             modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Categoria", b =>
                 {
                     b.Navigation("Productos");
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.MetodoPago", b =>
+                {
+                    b.Navigation("Ventas");
+                });
+
+            modelBuilder.Entity("Bodinis.LogicaNegocio.Entidades.Pedido", b =>
+                {
+                    b.Navigation("Detalles");
+
+                    b.Navigation("Venta");
                 });
 #pragma warning restore 612, 618
         }
