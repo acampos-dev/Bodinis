@@ -15,6 +15,10 @@ using Bodinis.LogicaAplicacion.CasosDeUso.Usuarios;
 using Bodinis.LogicaNegocio.InterfacesLogicaAplicacion;
 using Bodinis.LogicaAplicacion.DTOs.Productos;
 using Bodinis.LogicaAplicacion.CasosDeUso.Productos;
+using Bodinis.LogicaAplicacion.CasosDeUso.Caja;
+using Bodinis.LogicaAplicacion.CasosDeUso.Gastos;
+using Bodinis.LogicaAplicacion.DTOs.Caja;
+using Bodinis.LogicaAplicacion.DTOs.Gastos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +69,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
+builder.Services.AddScoped<IRepositorioCaja, RepositorioCaja>();
+builder.Services.AddScoped<IRepositorioGasto, RepositorioGasto>();
 
 // =======================
 // Casos de Uso
@@ -79,6 +85,15 @@ builder.Services.AddScoped<ICUDeactivate, DesactivarProducto>();
 builder.Services.AddScoped<ICUGetAll<ProductoDtoListado>, GetAllProductos>();
 builder.Services.AddScoped<ICUGetById<ProductoDtoListado>, GetProductoById>();
 builder.Services.AddScoped<ICUUpdate<ProductoDtoModificar>, UpdateProducto>();
+
+// Caso de uso: Caja
+builder.Services.AddScoped<ICUAdd<CajaDtoAbrir>, AbrirCaja>();
+builder.Services.AddScoped<ICUCerrarCaja, CerrarCaja>();
+builder.Services.AddScoped<ICUGetCajaActual, GetCajaActual>();
+
+// Caso de uso: Gastos
+builder.Services.AddScoped<ICUAdd<GastoDtoAlta>, RegistrarGasto>();
+builder.Services.AddScoped<ICUGetGastosPorCajaActual, GetGastosCajaActual>();
 
 
 // Cargar datos iniciales a la base de datos

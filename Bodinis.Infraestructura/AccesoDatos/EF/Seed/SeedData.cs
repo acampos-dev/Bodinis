@@ -75,48 +75,9 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF.Seed
             Console.WriteLine($">>> USUARIOS LUEGO DE SEED: {_context.Usuarios.Count()}");
         }
 
-        private void SeedCategoriasYProductos()
+        private bool ExisteUsuarioPorEmail(string email)
         {
-            Console.WriteLine(">>> CONTANDO CATEGORIAS...");
-            Console.WriteLine($">>> TOTAL: {_context.Categorias.Count()}");
-
-            var categoriasExistentes = _context.Categorias
-                .ToDictionary(c => c.Nombre, c => c);
-
-            if (!categoriasExistentes.ContainsKey("Pizzas"))
-            {
-                categoriasExistentes["Pizzas"] = _context.Categorias.Add(new Categoria("Pizzas", new List<Producto>())).Entity;
-            }
-
-            if (!categoriasExistentes.ContainsKey("Milanesas"))
-            {
-                Console.WriteLine($">>> USUARIOS YA EXISTEN (Total: {_context.Usuarios.Count()})");
-                return;
-            }
-
-            Console.WriteLine(">>> CREANDO USUARIOS POR DEFECTO...");
-
-            var admin = new Usuario(
-                "Administrador Bodinis",
-                new VoEmail("admin@bodinis.com"),
-                "admin",
-                _passwordHasher.Hash("Admin123"),
-                true,
-                RolUsuario.Admin
-            );
-
-            var empleado = new Usuario(
-                "Empleado Bodinis",
-                new VoEmail("empleado@bodinis.com"),
-                "empleado",
-                _passwordHasher.Hash("Empleado@123"),
-                true,
-                RolUsuario.Empleado
-            );
-
-            _context.Usuarios.AddRange(admin, empleado);
-            _context.SaveChanges();
-            Console.WriteLine(">>> USUARIOS CREADOS.");
+            return _context.Usuarios.Any(u => u.Email.Email == email);
         }
 
         private void SeedCategoriasYProductos()
