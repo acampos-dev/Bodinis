@@ -7,8 +7,8 @@ namespace Bodinis.WebApp.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        private readonly IHttpClientFactory _httpClientFactory; // Inyectamos el IHttpClientFactory para crear clientes HTTP
+        private static readonly JsonSerializerOptions JsonOptions = new() // Configuramos las opciones de JSON para que ignore mayúsculas/minúsculas en los nombres de las propiedades
         {
             PropertyNameCaseInsensitive = true
         };
@@ -30,18 +30,18 @@ namespace Bodinis.WebApp.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] // Protegemos el método POST contra ataques CSRF
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) // Si el modelo no es válido, volvemos a mostrar la vista con los errores de validación
             {
                 return View(model);
             }
 
             try
             {
-                var client = _httpClientFactory.CreateClient("BodinisApi");
-                var response = await client.PostAsJsonAsync("api/auth/login", new LoginApiRequest
+                var client = _httpClientFactory.CreateClient("BodinisApi"); // Creamos un cliente HTTP utilizando el IHttpClientFactory y el nombre de la configuración del cliente
+                var response = await client.PostAsJsonAsync("api/auth/login", new LoginApiRequest // Enviamos una solicitud POST a la API con el modelo de inicio de sesión convertido a un objeto de solicitud para la API
                 {
                     Email = model.Email,
                     Password = model.Password
