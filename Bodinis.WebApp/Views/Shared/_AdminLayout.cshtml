@@ -7,7 +7,7 @@
 }
 
 <div class="admin-shell">
-    <aside class="admin-sidebar" aria-label="Navegación administrativa">
+    <aside class="admin-sidebar" aria-label="Navegacion administrativa">
         <a class="admin-brand" asp-controller="Admin" asp-action="Index">
             <img src="~/img/bodinis-logo.png" alt="Bodinis" />
         </a>
@@ -29,7 +29,10 @@
                 <p>@Model.ActiveSection</p>
                 <h1>@Model.Title</h1>
             </div>
-            <a class="admin-user-pill" asp-controller="Auth" asp-action="Login">Salir</a>
+            <div class="admin-user-area">
+                <span>@Model.UserName</span>
+                <a class="admin-user-pill" asp-controller="Auth" asp-action="Logout">Salir</a>
+            </div>
         </header>
 
         <main class="admin-content">

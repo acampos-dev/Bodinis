@@ -8,6 +8,17 @@ namespace Bodinis.WebApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddHttpClient("BodinisApi", client =>
+            {
+                var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5245";
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
 
             var app = builder.Build();
 
@@ -24,6 +35,7 @@ namespace Bodinis.WebApp
 
             app.UseRouting();
 
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(

@@ -7,7 +7,7 @@
 
 <section class="admin-page-heading">
     <div>
-        <p class="admin-kicker">Catálogo</p>
+        <p class="admin-kicker">Catalogo</p>
         <h2>Productos</h2>
         <p>@Model.Subtitle</p>
     </div>
@@ -33,48 +33,63 @@
     <div class="admin-table-toolbar">
         <div>
             <h3>Listado</h3>
-            <p>Primer corte visual del CRU de productos.</p>
+            <p>Datos reales obtenidos desde la API.</p>
         </div>
         <input class="admin-search" type="search" placeholder="Buscar producto" aria-label="Buscar producto" />
     </div>
 
-    <div class="admin-table-wrap">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Estado</th>
-                    <th class="admin-actions-col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var producto in Model.Productos)
-                {
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="admin-inline-alert" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+    else if (!Model.Productos.Any())
+    {
+        <div class="admin-empty-state">
+            No hay productos cargados todavia.
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
                     <tr>
-                        <td>
-                            <strong>@producto.Nombre</strong>
-                            <span>#@producto.Id.ToString("D3")</span>
-                        </td>
-                        <td>@producto.Categoria</td>
-                        <td>$ @producto.Precio</td>
-                        <td>@producto.Stock</td>
-                        <td>
-                            <span class="status-pill @(producto.Disponible ? "available" : "unavailable")">
-                                @(producto.Disponible ? "Disponible" : "Sin stock")
-                            </span>
-                        </td>
-                        <td>
-                            <div class="admin-row-actions">
-                                <button type="button" title="Editar">✎</button>
-                                <button type="button" title="Desactivar">×</button>
-                            </div>
-                        </td>
+                        <th>Producto</th>
+                        <th>Categoria</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th class="admin-actions-col">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var producto in Model.Productos)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@producto.Nombre</strong>
+                                <span>#@producto.Id.ToString("D3")</span>
+                            </td>
+                            <td>@producto.Categoria</td>
+                            <td>$ @producto.Precio</td>
+                            <td>@producto.Stock</td>
+                            <td>
+                                <span class="status-pill @(producto.Disponible ? "available" : "unavailable")">
+                                    @(producto.Disponible ? "Disponible" : "Sin stock")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="admin-row-actions">
+                                    <button type="button" title="Editar">Ed</button>
+                                    <button type="button" title="Desactivar">X</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>
