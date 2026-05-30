@@ -9,5 +9,6 @@ namespace Bodinis.WebApp.Models
         public int Precio { get; set; }
         public int Stock { get; set; }
         public bool Disponible { get; set; }
+        public bool PuedeAgregarse => Disponible && Stock > 0;
     }
 }

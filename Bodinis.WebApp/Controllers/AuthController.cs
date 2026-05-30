@@ -62,6 +62,7 @@ namespace Bodinis.WebApp.Controllers
                 }
 
                 HttpContext.Session.SetString("AuthToken", login.Token);
+                HttpContext.Session.SetInt32("UserId", login.UsuarioId);
                 HttpContext.Session.SetString("UserName", string.IsNullOrWhiteSpace(login.NombreCompleto) ? login.UserName : login.NombreCompleto);
                 HttpContext.Session.SetString("UserRole", login.RolUsuario);
 

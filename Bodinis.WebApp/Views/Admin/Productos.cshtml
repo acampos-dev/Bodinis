@@ -95,11 +95,7 @@
                             <td>
                                 <div class="admin-row-actions">
                                     <button type="button" title="Editar" data-bs-toggle="modal" data-bs-target="#@editModalId">Ed</button>
-                                    <form asp-controller="Admin" asp-action="DesactivarProducto" method="post" onsubmit="return confirm('Estas seguro de desactivar este producto?');">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@producto.Id" />
-                                        <button type="submit" title="Desactivar">X</button>
-                                    </form>
+                                    <button type="button" title="Desactivar" data-bs-toggle="modal" data-bs-target="#desactivarProductoModal@producto.Id">X</button>
                                 </div>
                             </td>
                         </tr>
@@ -166,6 +162,31 @@
                     <div class="modal-footer">
                         <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="admin-primary-action">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade admin-modal" id="desactivarProductoModal@producto.Id" tabindex="-1" aria-labelledby="desactivarProductoTitle@producto.Id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <form asp-controller="Admin" asp-action="DesactivarProducto" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@producto.Id" />
+                    <div class="modal-header">
+                        <div>
+                            <p class="admin-kicker">Confirmacion</p>
+                            <h2 class="modal-title" id="desactivarProductoTitle@producto.Id">Desactivar producto</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="admin-confirm-text">Estas seguro de desactivar <strong>@producto.Nombre</strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">No</button>
+                        <button type="submit" class="admin-danger-action">Si, desactivar</button>
                     </div>
                 </form>
             </div>

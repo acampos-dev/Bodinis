@@ -50,6 +50,82 @@ namespace Bodinis.WebApp.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> Pedidos()
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var model = await BuildPedidosModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearPedido(PedidoFormViewModel form)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (form.ProductoIds.Count == 0 || form.ProductoIds.Count != form.Cantidades.Count)
+            {
+                TempData["PedidosError"] = "Agrega al menos un producto al pedido.";
+                return RedirectToAction(nameof(Pedidos));
+            }
+
+            var usuarioId = HttpContext.Session.GetInt32("UserId") ?? 0;
+
+            if (usuarioId <= 0)
+            {
+                TempData["PedidosError"] = "No se encontro el usuario de la sesion.";
+                return RedirectToAction(nameof(Pedidos));
+            }
+
+            var detalles = form.ProductoIds
+                .Select((productoId, index) => new PedidoDetalleApiRequest
+                {
+                    ProductoId = productoId,
+                    Cantidad = form.Cantidades[index]
+                })
+                .Where(detalle => detalle.ProductoId > 0 && detalle.Cantidad > 0)
+                .ToList();
+
+            if (detalles.Count == 0)
+            {
+                TempData["PedidosError"] = "Agrega al menos un producto con cantidad valida.";
+                return RedirectToAction(nameof(Pedidos));
+            }
+
+            var response = await SendApiRequest(client => client.PostAsJsonAsync("api/pedidos", new PedidoApiWriteRequest
+            {
+                UsuarioId = usuarioId,
+                TipoPedido = form.TipoPedido,
+                NombreCliente = form.NombreCliente,
+                TelefonoCliente = form.TelefonoCliente,
+                DireccionCliente = form.TipoPedido == 2 ? form.DireccionCliente : null,
+                Detalles = detalles
+            }));
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["PedidosSuccess"] = "Pedido creado correctamente.";
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                HttpContext.Session.Clear();
+                TempData["PedidosError"] = "Tu sesion vencio. Vuelve a iniciar sesion.";
+            }
+            else
+            {
+                TempData["PedidosError"] = "No se pudo crear el pedido.";
+            }
+
+            return RedirectToAction(nameof(Pedidos));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearProducto(ProductoFormViewModel form)
@@ -182,6 +258,85 @@ namespace Bodinis.WebApp.Controllers
             return model;
         }
 
+        private async Task<AdminPedidosViewModel> BuildPedidosModel()
+        {
+            var model = new AdminPedidosViewModel
+            {
+                Title = "Pedidos",
+                Subtitle = "Carga rapida de pedidos con busqueda de productos.",
+                ActiveSection = "Pedidos",
+                UserName = GetUserName(),
+                Navigation = BuildNavigation("Pedidos"),
+                SuccessMessage = TempData["PedidosSuccess"] as string,
+                ErrorMessage = TempData["PedidosError"] as string
+            };
+
+            try
+            {
+                var client = CreateApiClient();
+                var productos = await GetProductos(client);
+                model.Productos = productos.Where(producto => producto.PuedeAgregarse).ToList();
+                model.MetodosPago = await GetMetodosPago(client);
+
+                var response = await client.GetAsync("api/pedidos");
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HttpContext.Session.Clear();
+                    model.ErrorMessage = "Tu sesion vencio. Vuelve a iniciar sesion.";
+                    return model;
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    model.ErrorMessage ??= "No se pudieron cargar los pedidos desde la API.";
+                    return model;
+                }
+
+                var pedidos = await response.Content.ReadFromJsonAsync<List<PedidoApiResponse>>(JsonOptions) ?? new List<PedidoApiResponse>();
+                model.Pedidos = pedidos
+                    .OrderByDescending(pedido => pedido.FechaHora)
+                    .Take(12)
+                    .Select(pedido => new PedidoAdminViewModel
+                    {
+                        Id = pedido.Id,
+                        FechaHora = pedido.FechaHora,
+                        TipoPedido = MapTipoPedido(pedido.TipoPedido),
+                        Estado = MapEstadoPedido(pedido.Estado),
+                        Total = pedido.Total
+                    })
+                    .ToList();
+            }
+            catch (HttpRequestException)
+            {
+                model.ErrorMessage = "No se pudo conectar con la API. Verifica que Bodinis.WebApi este corriendo.";
+            }
+
+            return model;
+        }
+
+        private async Task<List<ProductoAdminViewModel>> GetProductos(HttpClient client)
+        {
+            var response = await client.GetAsync("api/productos");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<ProductoAdminViewModel>();
+            }
+
+            var productos = await response.Content.ReadFromJsonAsync<List<ProductoApiResponse>>(JsonOptions) ?? new List<ProductoApiResponse>();
+
+            return productos.Select(producto => new ProductoAdminViewModel
+            {
+                Id = producto.Id,
+                Nombre = producto.NombreProducto,
+                Categoria = producto.Categoria,
+                Precio = producto.Precio,
+                Stock = producto.Stock,
+                Disponible = producto.Disponible
+            }).ToList();
+        }
+
         private async Task<List<CategoriaOptionViewModel>> GetCategorias(HttpClient client)
         {
             var response = await client.GetAsync("api/categorias");
@@ -198,6 +353,32 @@ namespace Bodinis.WebApp.Controllers
                 Id = categoria.Id,
                 Nombre = categoria.Nombre
             }).ToList();
+        }
+
+        private async Task<List<MetodoPagoOptionViewModel>> GetMetodosPago(HttpClient client)
+        {
+            var response = await client.GetAsync("api/metodos-pago");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<MetodoPagoOptionViewModel>
+                {
+                    new() { Id = 1, Nombre = "Efectivo" },
+                    new() { Id = 2, Nombre = "Debito" },
+                    new() { Id = 3, Nombre = "Credito 1 cuota" }
+                };
+            }
+
+            var metodos = await response.Content.ReadFromJsonAsync<List<MetodoPagoApiResponse>>(JsonOptions) ?? new List<MetodoPagoApiResponse>();
+
+            return metodos
+                .Where(metodo => metodo.Activo)
+                .Select(metodo => new MetodoPagoOptionViewModel
+                {
+                    Id = metodo.Id,
+                    Nombre = metodo.Nombre
+                })
+                .ToList();
         }
 
         private async Task<HttpResponseMessage> SendApiRequest(Func<HttpClient, Task<HttpResponseMessage>> request)
@@ -265,7 +446,7 @@ namespace Bodinis.WebApp.Controllers
                 new() { Label = "Inicio", Icon = "IN", Action = nameof(Index) },
                 new() { Label = "Productos", Icon = "PR", Action = nameof(Productos) },
                 new() { Label = "Categorias", Icon = "CA", Action = nameof(Index) },
-                new() { Label = "Pedidos", Icon = "PE", Action = nameof(Index) },
+                new() { Label = "Pedidos", Icon = "PE", Action = nameof(Pedidos) },
                 new() { Label = "Ventas", Icon = "$", Action = nameof(Index) },
                 new() { Label = "Caja", Icon = "CJ", Action = nameof(Index) }
             };
@@ -294,6 +475,22 @@ namespace Bodinis.WebApp.Controllers
             public string Nombre { get; set; } = string.Empty;
         }
 
+        private class MetodoPagoApiResponse
+        {
+            public int Id { get; set; }
+            public string Nombre { get; set; } = string.Empty;
+            public bool Activo { get; set; }
+        }
+
+        private class PedidoApiResponse
+        {
+            public int Id { get; set; }
+            public DateTime FechaHora { get; set; }
+            public int TipoPedido { get; set; }
+            public int Estado { get; set; }
+            public int Total { get; set; }
+        }
+
         private class ProductoApiWriteRequest
         {
             public string NombreProducto { get; set; } = string.Empty;
@@ -306,6 +503,39 @@ namespace Bodinis.WebApp.Controllers
         private class ProductoApiUpdateRequest : ProductoApiWriteRequest
         {
             public int Id { get; set; }
+        }
+
+        private class PedidoApiWriteRequest
+        {
+            public int UsuarioId { get; set; }
+            public int TipoPedido { get; set; }
+            public string? NombreCliente { get; set; }
+            public string? TelefonoCliente { get; set; }
+            public string? DireccionCliente { get; set; }
+            public List<PedidoDetalleApiRequest> Detalles { get; set; } = new();
+        }
+
+        private class PedidoDetalleApiRequest
+        {
+            public int ProductoId { get; set; }
+            public int Cantidad { get; set; }
+        }
+
+        private static string MapTipoPedido(int tipoPedido)
+        {
+            return tipoPedido == 2 ? "Delivery" : "Mostrador";
+        }
+
+        private static string MapEstadoPedido(int estado)
+        {
+            return estado switch
+            {
+                1 => "Pendiente",
+                2 => "Preparacion",
+                3 => "Entregado",
+                4 => "Cancelado",
+                _ => "Sin estado"
+            };
         }
     }
 }
