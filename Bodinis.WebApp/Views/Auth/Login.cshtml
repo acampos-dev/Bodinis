@@ -1,0 +1,56 @@
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    ViewData["BodyClass"] = "login-page";
+    ViewData["HideChrome"] = true;
+}
+
+<section class="login-shell" aria-labelledby="login-title">
+    <div class="login-card">
+        <img class="login-logo" src="~/img/bodinis-logo.png" alt="Bodinis" />
+
+        <div class="login-card-header">
+            <p class="login-kicker">Sistema Bodinis</p>
+            <h1 id="login-title">Iniciar sesión</h1>
+            <p>Acceso para empleados y administradores.</p>
+        </div>
+
+        @if (TempData["LoginInfo"] is string loginInfo)
+        {
+            <div class="alert alert-warning login-alert" role="alert">
+                @loginInfo
+            </div>
+        }
+
+        <form asp-action="Login" asp-controller="Auth" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-floating login-field">
+                <input asp-for="Email" class="form-control" autocomplete="username" placeholder="usuario@bodinis.com" />
+                <label asp-for="Email"></label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating login-field">
+                <input asp-for="Password" class="form-control" autocomplete="current-password" placeholder="Contraseña" />
+                <label asp-for="Password"></label>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="login-options">
+                <div class="form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label"></label>
+                </div>
+                <a href="#" aria-label="Recuperar contraseña">Olvidé mi contraseña</a>
+            </div>
+
+            <button class="btn login-submit" type="submit">Ingresar</button>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

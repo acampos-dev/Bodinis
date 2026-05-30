@@ -3,24 +3,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bodinis.WebApp.Controllers
 {
-    public class AdminController : Controller
+    public class AuthController : Controller
     {
         [HttpGet]
         public IActionResult Login()
         {
-            return View(new AdminLoginViewModel());
+            return View(new LoginViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(AdminLoginViewModel model)
+        public IActionResult Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            TempData["LoginInfo"] = "El diseño del login ya está listo. El próximo paso es conectarlo con la API de autenticación.";
+            TempData["LoginInfo"] = "El login visual está listo. Luego lo conectamos con la autenticación real.";
             return RedirectToAction(nameof(Login));
         }
     }

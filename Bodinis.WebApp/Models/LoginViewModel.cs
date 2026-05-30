@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bodinis.WebApp.Models
 {
-    public class AdminLoginViewModel
+    public class LoginViewModel
     {
         [Required(ErrorMessage = "Ingresá tu email.")]
         [EmailAddress(ErrorMessage = "Ingresá un email válido.")]
