@@ -1,5 +1,6 @@
 using Bodinis.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -45,32 +46,120 @@ namespace Bodinis.WebApp.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
+            var model = await BuildProductosModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearProducto(ProductoFormViewModel form)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ProductsError"] = "Revisa los datos del producto nuevo.";
+                return RedirectToAction(nameof(Productos));
+            }
+
+            var response = await SendApiRequest(client => client.PostAsJsonAsync("api/productos", new ProductoApiWriteRequest
+            {
+                NombreProducto = form.NombreProducto,
+                Precio = form.Precio,
+                Disponible = form.Disponible,
+                Stock = form.Stock,
+                CategoriaId = form.CategoriaId
+            }));
+
+            SetProductOperationMessage(response, "Producto creado correctamente.", "No se pudo crear el producto.");
+            return RedirectToAction(nameof(Productos));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarProducto(ProductoFormViewModel form)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (!ModelState.IsValid || form.Id <= 0)
+            {
+                TempData["ProductsError"] = "Revisa los datos del producto.";
+                return RedirectToAction(nameof(Productos));
+            }
+
+            var response = await SendApiRequest(client => client.PutAsJsonAsync($"api/productos/{form.Id}", new ProductoApiUpdateRequest
+            {
+                Id = form.Id,
+                NombreProducto = form.NombreProducto,
+                Precio = form.Precio,
+                Disponible = form.Disponible,
+                Stock = form.Stock,
+                CategoriaId = form.CategoriaId
+            }));
+
+            SetProductOperationMessage(response, "Producto actualizado correctamente.", "No se pudo actualizar el producto.");
+            return RedirectToAction(nameof(Productos));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DesactivarProducto(int id)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (id <= 0)
+            {
+                TempData["ProductsError"] = "No se encontro el producto a desactivar.";
+                return RedirectToAction(nameof(Productos));
+            }
+
+            var response = await SendApiRequest(client => client.PatchAsync($"api/productos/{id}/desactivar", content: null));
+            SetProductOperationMessage(response, "Producto desactivado correctamente.", "No se pudo desactivar el producto.");
+            return RedirectToAction(nameof(Productos));
+        }
+
+        private async Task<AdminProductosViewModel> BuildProductosModel()
+        {
             var model = new AdminProductosViewModel
             {
                 Title = "Productos",
                 Subtitle = "Gestiona el catalogo, la disponibilidad y el stock.",
                 ActiveSection = "Productos",
                 UserName = GetUserName(),
-                Navigation = BuildNavigation("Productos")
+                Navigation = BuildNavigation("Productos"),
+                SuccessMessage = TempData["ProductsSuccess"] as string,
+                ErrorMessage = TempData["ProductsError"] as string
             };
 
             try
             {
-                var client = _httpClientFactory.CreateClient("BodinisApi");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetToken());
+                var client = CreateApiClient();
+
+                var categorias = await GetCategorias(client);
+                model.Categorias = categorias;
 
                 var response = await client.GetAsync("api/productos");
 
-                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     HttpContext.Session.Clear();
-                    return RedirectToAction("Login", "Auth");
+                    model.ErrorMessage = "Tu sesion vencio. Vuelve a iniciar sesion.";
+                    return model;
                 }
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    model.ErrorMessage = "No se pudieron cargar los productos desde la API.";
-                    return View(model);
+                    model.ErrorMessage ??= "No se pudieron cargar los productos desde la API.";
+                    return model;
                 }
 
                 var productos = await response.Content.ReadFromJsonAsync<List<ProductoApiResponse>>(JsonOptions) ?? new List<ProductoApiResponse>();
@@ -79,6 +168,7 @@ namespace Bodinis.WebApp.Controllers
                     Id = producto.Id,
                     Nombre = producto.NombreProducto,
                     Categoria = producto.Categoria,
+                    CategoriaId = categorias.FirstOrDefault(categoria => categoria.Nombre == producto.Categoria)?.Id ?? 0,
                     Precio = producto.Precio,
                     Stock = producto.Stock,
                     Disponible = producto.Disponible
@@ -89,7 +179,68 @@ namespace Bodinis.WebApp.Controllers
                 model.ErrorMessage = "No se pudo conectar con la API. Verifica que Bodinis.WebApi este corriendo.";
             }
 
-            return View(model);
+            return model;
+        }
+
+        private async Task<List<CategoriaOptionViewModel>> GetCategorias(HttpClient client)
+        {
+            var response = await client.GetAsync("api/categorias");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<CategoriaOptionViewModel>();
+            }
+
+            var categorias = await response.Content.ReadFromJsonAsync<List<CategoriaApiResponse>>(JsonOptions) ?? new List<CategoriaApiResponse>();
+
+            return categorias.Select(categoria => new CategoriaOptionViewModel
+            {
+                Id = categoria.Id,
+                Nombre = categoria.Nombre
+            }).ToList();
+        }
+
+        private async Task<HttpResponseMessage> SendApiRequest(Func<HttpClient, Task<HttpResponseMessage>> request)
+        {
+            try
+            {
+                return await request(CreateApiClient());
+            }
+            catch (HttpRequestException)
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            }
+        }
+
+        private void SetProductOperationMessage(HttpResponseMessage response, string successMessage, string fallbackErrorMessage)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["ProductsSuccess"] = successMessage;
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                TempData["ProductsError"] = "Tu usuario no tiene permisos para realizar esta accion.";
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                HttpContext.Session.Clear();
+                TempData["ProductsError"] = "Tu sesion vencio. Vuelve a iniciar sesion.";
+                return;
+            }
+
+            TempData["ProductsError"] = fallbackErrorMessage;
+        }
+
+        private HttpClient CreateApiClient()
+        {
+            var client = _httpClientFactory.CreateClient("BodinisApi");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetToken());
+            return client;
         }
 
         private bool IsLoggedIn()
@@ -135,6 +286,26 @@ namespace Bodinis.WebApp.Controllers
             public bool Disponible { get; set; }
             public int Stock { get; set; }
             public string Categoria { get; set; } = string.Empty;
+        }
+
+        private class CategoriaApiResponse
+        {
+            public int Id { get; set; }
+            public string Nombre { get; set; } = string.Empty;
+        }
+
+        private class ProductoApiWriteRequest
+        {
+            public string NombreProducto { get; set; } = string.Empty;
+            public int Precio { get; set; }
+            public bool Disponible { get; set; }
+            public int Stock { get; set; }
+            public int CategoriaId { get; set; }
+        }
+
+        private class ProductoApiUpdateRequest : ProductoApiWriteRequest
+        {
+            public int Id { get; set; }
         }
     }
 }

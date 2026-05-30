@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Productos";
     Layout = "_AdminLayout";
+    ViewData["Categorias"] = Model.Categorias;
 }
 
 <section class="admin-page-heading">
@@ -11,8 +12,17 @@
         <h2>Productos</h2>
         <p>@Model.Subtitle</p>
     </div>
-    <button class="admin-primary-action" type="button">Nuevo producto</button>
+    <button class="admin-primary-action" type="button" data-bs-toggle="modal" data-bs-target="#nuevoProductoModal">
+        Nuevo producto
+    </button>
 </section>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="admin-inline-success" role="status">
+        @Model.SuccessMessage
+    </div>
+}
 
 <section class="product-stats" aria-label="Resumen de productos">
     <article>
@@ -67,6 +77,8 @@
                 <tbody>
                     @foreach (var producto in Model.Productos)
                     {
+                        var editModalId = $"editarProductoModal{producto.Id}";
+
                         <tr>
                             <td>
                                 <strong>@producto.Nombre</strong>
@@ -82,8 +94,12 @@
                             </td>
                             <td>
                                 <div class="admin-row-actions">
-                                    <button type="button" title="Editar">Ed</button>
-                                    <button type="button" title="Desactivar">X</button>
+                                    <button type="button" title="Editar" data-bs-toggle="modal" data-bs-target="#@editModalId">Ed</button>
+                                    <form asp-controller="Admin" asp-action="DesactivarProducto" method="post" onsubmit="return confirm('Estas seguro de desactivar este producto?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@producto.Id" />
+                                        <button type="submit" title="Desactivar">X</button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -93,3 +109,66 @@
         </div>
     }
 </section>
+
+<div class="modal fade admin-modal" id="nuevoProductoModal" tabindex="-1" aria-labelledby="nuevoProductoTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Admin" asp-action="CrearProducto" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <div>
+                        <p class="admin-kicker">Catalogo</p>
+                        <h2 class="modal-title" id="nuevoProductoTitle">Nuevo producto</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <partial name="_ProductoFormFields" model="new ProductoFormViewModel { Disponible = true }" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-primary-action">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@foreach (var producto in Model.Productos)
+{
+    var editModalId = $"editarProductoModal{producto.Id}";
+    var formModel = new ProductoFormViewModel
+    {
+        Id = producto.Id,
+        NombreProducto = producto.Nombre,
+        Precio = producto.Precio,
+        Stock = producto.Stock,
+        Disponible = producto.Disponible,
+        CategoriaId = producto.CategoriaId
+    };
+
+    <div class="modal fade admin-modal" id="@editModalId" tabindex="-1" aria-labelledby="editarProductoTitle@producto.Id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-controller="Admin" asp-action="EditarProducto" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@producto.Id" />
+                    <div class="modal-header">
+                        <div>
+                            <p class="admin-kicker">Catalogo</p>
+                            <h2 class="modal-title" id="editarProductoTitle@producto.Id">Editar producto</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <partial name="_ProductoFormFields" model="formModel" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="admin-primary-action">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

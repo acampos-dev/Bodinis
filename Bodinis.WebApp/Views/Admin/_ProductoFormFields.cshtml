@@ -1,0 +1,46 @@
+@model ProductoFormViewModel
+
+@{
+    var opciones = ViewData["Categorias"] as IReadOnlyList<CategoriaOptionViewModel> ?? Array.Empty<CategoriaOptionViewModel>();
+}
+
+<div class="admin-form-grid">
+    <div class="admin-form-field full">
+        <label for="NombreProducto">Nombre</label>
+        <input id="NombreProducto" name="NombreProducto" type="text" value="@Model.NombreProducto" required />
+    </div>
+
+    <div class="admin-form-field">
+        <label for="Precio">Precio</label>
+        <input id="Precio" name="Precio" type="number" min="1" value="@Model.Precio" required />
+    </div>
+
+    <div class="admin-form-field">
+        <label for="Stock">Stock</label>
+        <input id="Stock" name="Stock" type="number" min="0" value="@Model.Stock" required />
+    </div>
+
+    <div class="admin-form-field full">
+        <label for="CategoriaId">Categoria</label>
+        <select id="CategoriaId" name="CategoriaId" required>
+            <option value="">Seleccionar categoria</option>
+            @foreach (var categoria in opciones)
+            {
+                if (categoria.Id == Model.CategoriaId)
+                {
+                    <option value="@categoria.Id" selected>@categoria.Nombre</option>
+                }
+                else
+                {
+                    <option value="@categoria.Id">@categoria.Nombre</option>
+                }
+            }
+        </select>
+    </div>
+
+    <label class="admin-form-check full">
+        <input type="hidden" name="Disponible" value="false" />
+        <input type="checkbox" name="Disponible" value="true" checked="@Model.Disponible" />
+        Disponible para la venta
+    </label>
+</div>

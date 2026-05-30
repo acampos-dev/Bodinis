@@ -367,6 +367,19 @@ body {
   white-space: nowrap;
 }
 
+.admin-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 1.1rem;
+  border: 2px solid rgba(132, 72, 29, 0.16);
+  border-radius: 8px;
+  background: #fffdf7;
+  color: var(--bodinis-brown);
+  font-weight: 900;
+}
+
 .admin-section-grid,
 .product-stats {
   display: grid;
@@ -476,12 +489,19 @@ body {
   overflow-x: auto;
 }
 
+.admin-inline-success,
 .admin-inline-alert,
 .admin-empty-state {
   margin: 1rem;
   padding: 1rem;
   border-radius: 8px;
   font-weight: 800;
+}
+
+.admin-inline-success {
+  margin: 0 0 1rem;
+  background: rgba(189, 224, 219, 0.72);
+  color: #2d635b;
 }
 
 .admin-inline-alert {
@@ -558,6 +578,10 @@ body {
   gap: 0.45rem;
 }
 
+.admin-row-actions form {
+  margin: 0;
+}
+
 .admin-row-actions button {
   display: grid;
   place-items: center;
@@ -568,6 +592,68 @@ body {
   background: #fff;
   color: var(--bodinis-brown);
   font-weight: 900;
+}
+
+.admin-modal .modal-content {
+  border: 2px solid rgba(132, 72, 29, 0.16);
+  border-radius: 8px;
+  background: var(--bodinis-card);
+}
+
+.admin-modal .modal-header,
+.admin-modal .modal-footer {
+  border-color: rgba(132, 72, 29, 0.12);
+}
+
+.admin-modal .modal-title {
+  margin: 0;
+  color: var(--bodinis-brown);
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-form-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-form-field.full,
+.admin-form-check.full {
+  grid-column: 1 / -1;
+}
+
+.admin-form-field label,
+.admin-form-check {
+  color: var(--bodinis-muted);
+  font-weight: 900;
+}
+
+.admin-form-field input,
+.admin-form-field select {
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(132, 72, 29, 0.16);
+  border-radius: 8px;
+  background: #fffdf7;
+  color: var(--bodinis-ink);
+}
+
+.admin-form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.admin-form-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bodinis-brown);
 }
 
 @media (max-width: 980px) {
