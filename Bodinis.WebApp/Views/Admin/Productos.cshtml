@@ -1,0 +1,80 @@
+@model AdminProductosViewModel
+
+@{
+    ViewData["Title"] = "Productos";
+    Layout = "_AdminLayout";
+}
+
+<section class="admin-page-heading">
+    <div>
+        <p class="admin-kicker">Catálogo</p>
+        <h2>Productos</h2>
+        <p>@Model.Subtitle</p>
+    </div>
+    <button class="admin-primary-action" type="button">Nuevo producto</button>
+</section>
+
+<section class="product-stats" aria-label="Resumen de productos">
+    <article>
+        <span>Total productos</span>
+        <strong>@Model.TotalProductos</strong>
+    </article>
+    <article>
+        <span>Disponibles</span>
+        <strong>@Model.ProductosDisponibles</strong>
+    </article>
+    <article>
+        <span>Stock total</span>
+        <strong>@Model.StockTotal</strong>
+    </article>
+</section>
+
+<section class="admin-table-panel">
+    <div class="admin-table-toolbar">
+        <div>
+            <h3>Listado</h3>
+            <p>Primer corte visual del CRU de productos.</p>
+        </div>
+        <input class="admin-search" type="search" placeholder="Buscar producto" aria-label="Buscar producto" />
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th class="admin-actions-col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var producto in Model.Productos)
+                {
+                    <tr>
+                        <td>
+                            <strong>@producto.Nombre</strong>
+                            <span>#@producto.Id.ToString("D3")</span>
+                        </td>
+                        <td>@producto.Categoria</td>
+                        <td>$ @producto.Precio</td>
+                        <td>@producto.Stock</td>
+                        <td>
+                            <span class="status-pill @(producto.Disponible ? "available" : "unavailable")">
+                                @(producto.Disponible ? "Disponible" : "Sin stock")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="admin-row-actions">
+                                <button type="button" title="Editar">✎</button>
+                                <button type="button" title="Desactivar">×</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+@model AdminPageViewModel
+
+@{
+    ViewData["Title"] = "Panel administrativo";
+    Layout = "_AdminLayout";
+}
+
+<section class="admin-welcome">
+    <div>
+        <p class="admin-kicker">Administración</p>
+        <h2>Todo listo para ordenar la gestión diaria.</h2>
+        <p>@Model.Subtitle</p>
+    </div>
+    <a class="admin-primary-action" asp-controller="Admin" asp-action="Productos">Ir a productos</a>
+</section>
+
+<section class="admin-section-grid" aria-label="Secciones del panel">
+    <a class="admin-section-card" asp-controller="Admin" asp-action="Productos">
+        <span>▦</span>
+        <strong>Productos</strong>
+        <p>Catálogo, precios, stock y disponibilidad.</p>
+    </a>
+    <article class="admin-section-card muted">
+        <span>◇</span>
+        <strong>Categorías</strong>
+        <p>Organización del menú y familias de productos.</p>
+    </article>
+    <article class="admin-section-card muted">
+        <span>☰</span>
+        <strong>Pedidos</strong>
+        <p>Seguimiento operativo de pedidos activos.</p>
+    </article>
+    <article class="admin-section-card muted">
+        <span>$</span>
+        <strong>Ventas</strong>
+        <p>Resumen comercial y movimientos diarios.</p>
+    </article>
+</section>

@@ -1,0 +1,41 @@
+@model AdminPageViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="admin-shell">
+    <aside class="admin-sidebar" aria-label="Navegación administrativa">
+        <a class="admin-brand" asp-controller="Admin" asp-action="Index">
+            <img src="~/img/bodinis-logo.png" alt="Bodinis" />
+        </a>
+
+        <nav class="admin-nav">
+            @foreach (var item in Model.Navigation)
+            {
+                <a class="admin-nav-link @(item.IsActive ? "active" : null)" asp-controller="@item.Controller" asp-action="@item.Action">
+                    <span aria-hidden="true">@item.Icon</span>
+                    @item.Label
+                </a>
+            }
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div>
+                <p>@Model.ActiveSection</p>
+                <h1>@Model.Title</h1>
+            </div>
+            <a class="admin-user-pill" asp-controller="Auth" asp-action="Login">Salir</a>
+        </header>
+
+        <main class="admin-content">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)
