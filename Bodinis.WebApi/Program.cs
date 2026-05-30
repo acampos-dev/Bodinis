@@ -196,6 +196,8 @@ using (var scope = app.Services.CreateScope())
     // Aplica migraciones antes de ejecutar datos iniciales.
     context.Database.Migrate();
 
+    RepararEsquemaLocalDesfasado(context);
+
     var seed = services.GetRequiredService<SeedData>();
     seed.Run();
 }
@@ -227,6 +229,158 @@ static void RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(BodinisContext co
         BEGIN
             INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
             VALUES (N'20260301211924_InitialCreate', N'8.0.20')
+        END
+        """);
+}
+
+static void RepararEsquemaLocalDesfasado(BodinisContext context)
+{
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[MetodosPago]') IS NULL
+        BEGIN
+            CREATE TABLE [MetodosPago] (
+                [Id] int NOT NULL IDENTITY,
+                [Nombre] nvarchar(80) NOT NULL,
+                [Activo] bit NOT NULL,
+                CONSTRAINT [PK_MetodosPago] PRIMARY KEY ([Id])
+            );
+
+            CREATE UNIQUE INDEX [IX_MetodosPago_Nombre] ON [MetodosPago] ([Nombre]);
+        END
+
+        IF OBJECT_ID(N'[Gastos]') IS NULL AND OBJECT_ID(N'[Cajas]') IS NOT NULL
+        BEGIN
+            CREATE TABLE [Gastos] (
+                [Id] int NOT NULL IDENTITY,
+                [FechaHora] datetime2 NOT NULL,
+                [Descripcion] nvarchar(200) NOT NULL,
+                [Monto] int NOT NULL,
+                [Categoria] nvarchar(80) NULL,
+                [CajaId] int NOT NULL,
+                CONSTRAINT [PK_Gastos] PRIMARY KEY ([Id])
+            );
+
+            CREATE INDEX [IX_Gastos_CajaId] ON [Gastos] ([CajaId]);
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH(N'[Pedidos]', N'NombreCliente') IS NULL
+                ALTER TABLE [Pedidos] ADD [NombreCliente] nvarchar(100) NULL;
+
+            IF COL_LENGTH(N'[Pedidos]', N'TelefonoCliente') IS NULL
+                ALTER TABLE [Pedidos] ADD [TelefonoCliente] nvarchar(30) NULL;
+
+            IF COL_LENGTH(N'[Pedidos]', N'DireccionCliente') IS NULL
+                ALTER TABLE [Pedidos] ADD [DireccionCliente] nvarchar(200) NULL;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
+           AND EXISTS (
+               SELECT 1
+               FROM sys.columns
+               WHERE object_id = OBJECT_ID(N'[Pedidos]')
+                 AND name = N'TipoPedido'
+                 AND system_type_id = TYPE_ID(N'int')
+           )
+           AND COL_LENGTH(N'[Pedidos]', N'TipoPedidoNuevo') IS NULL
+        BEGIN
+                ALTER TABLE [Pedidos] ADD [TipoPedidoNuevo] nvarchar(30) NULL;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
+           AND EXISTS (
+               SELECT 1
+               FROM sys.columns
+               WHERE object_id = OBJECT_ID(N'[Pedidos]')
+                 AND name = N'TipoPedido'
+                 AND system_type_id = TYPE_ID(N'int')
+           )
+           AND COL_LENGTH(N'[Pedidos]', N'TipoPedidoNuevo') IS NOT NULL
+        BEGIN
+            UPDATE [Pedidos]
+               SET [TipoPedidoNuevo] = CASE [TipoPedido]
+                    WHEN 2 THEN N'Delivery'
+                    ELSE N'Mostrador'
+               END;
+            ALTER TABLE [Pedidos] DROP COLUMN [TipoPedido];
+            EXEC sp_rename N'Pedidos.TipoPedidoNuevo', N'TipoPedido', N'COLUMN';
+            ALTER TABLE [Pedidos] ALTER COLUMN [TipoPedido] nvarchar(30) NOT NULL;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
+           AND EXISTS (
+               SELECT 1
+               FROM sys.columns
+               WHERE object_id = OBJECT_ID(N'[Pedidos]')
+                 AND name = N'Estado'
+                 AND system_type_id = TYPE_ID(N'int')
+           )
+           AND COL_LENGTH(N'[Pedidos]', N'EstadoNuevo') IS NULL
+        BEGIN
+                ALTER TABLE [Pedidos] ADD [EstadoNuevo] nvarchar(30) NULL;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
+           AND EXISTS (
+               SELECT 1
+               FROM sys.columns
+               WHERE object_id = OBJECT_ID(N'[Pedidos]')
+                 AND name = N'Estado'
+                 AND system_type_id = TYPE_ID(N'int')
+           )
+           AND COL_LENGTH(N'[Pedidos]', N'EstadoNuevo') IS NOT NULL
+        BEGIN
+            UPDATE [Pedidos]
+               SET [EstadoNuevo] = CASE [Estado]
+                    WHEN 2 THEN N'Preparacion'
+                    WHEN 3 THEN N'Entregado'
+                    WHEN 4 THEN N'Cancelado'
+                    ELSE N'Pendiente'
+               END;
+            ALTER TABLE [Pedidos] DROP COLUMN [Estado];
+            EXEC sp_rename N'Pedidos.EstadoNuevo', N'Estado', N'COLUMN';
+            ALTER TABLE [Pedidos] ALTER COLUMN [Estado] nvarchar(30) NOT NULL;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[Ventas]') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH(N'[Ventas]', N'MetodoPagoId') IS NULL
+                ALTER TABLE [Ventas] ADD [MetodoPagoId] int NOT NULL CONSTRAINT [DF_Ventas_MetodoPagoId] DEFAULT 1;
+
+            IF COL_LENGTH(N'[Ventas]', N'PedidoId') IS NULL
+                ALTER TABLE [Ventas] ADD [PedidoId] int NOT NULL CONSTRAINT [DF_Ventas_PedidoId] DEFAULT 1;
+        END
+        """);
+
+    context.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM [__EFMigrationsHistory]
+                WHERE [MigrationId] = N'20260522120000_AddGastosCaja'
+            )
+                INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                VALUES (N'20260522120000_AddGastosCaja', N'8.0.20');
+
+            IF NOT EXISTS (
+                SELECT 1 FROM [__EFMigrationsHistory]
+                WHERE [MigrationId] = N'20260522123000_AddPedidosMetodosPagoVentas'
+            )
+                INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                VALUES (N'20260522123000_AddPedidosMetodosPagoVentas', N'8.0.20');
         END
         """);
 }
