@@ -216,7 +216,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.Run();
 
-static void RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(BodinisContext context)
+static void RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(BodinisContext context) // Registra la migración inicial si la base de datos fue creada con EnsureCreated
 {
     context.Database.ExecuteSqlRaw("""
         IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
@@ -233,7 +233,7 @@ static void RegistrarBaselineSiLaBaseFueCreadaConEnsureCreated(BodinisContext co
         """);
 }
 
-static void RepararEsquemaLocalDesfasado(BodinisContext context)
+static void RepararEsquemaLocalDesfasado(BodinisContext context) // Repara el esquema local si se detectan tablas o columnas faltantes que deberían existir según las migraciones aplicadas. Esto es útil para desarrolladores que hayan creado la base de datos con EnsureCreated y luego apliquen migraciones.
 {
     context.Database.ExecuteSqlRaw("""
         IF OBJECT_ID(N'[MetodosPago]') IS NULL
@@ -293,6 +293,7 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context)
         END
         """);
 
+    // Evitar fallo de compilación al referenciar columnas que pueden no existir:
     context.Database.ExecuteSqlRaw("""
         IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
            AND EXISTS (
@@ -304,14 +305,16 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context)
            )
            AND COL_LENGTH(N'[Pedidos]', N'TipoPedidoNuevo') IS NOT NULL
         BEGIN
-            UPDATE [Pedidos]
-               SET [TipoPedidoNuevo] = CASE [TipoPedido]
-                    WHEN 2 THEN N'Delivery'
-                    ELSE N'Mostrador'
-               END;
-            ALTER TABLE [Pedidos] DROP COLUMN [TipoPedido];
-            EXEC sp_rename N'Pedidos.TipoPedidoNuevo', N'TipoPedido', N'COLUMN';
-            ALTER TABLE [Pedidos] ALTER COLUMN [TipoPedido] nvarchar(30) NOT NULL;
+            EXEC sp_executesql N'
+                UPDATE [Pedidos]
+                   SET [TipoPedidoNuevo] = CASE [TipoPedido]
+                        WHEN 2 THEN N''''Delivery''''
+                        ELSE N''''Mostrador''''
+                   END;
+                ALTER TABLE [Pedidos] DROP COLUMN [TipoPedido];
+                EXEC sp_rename N''''Pedidos.TipoPedidoNuevo'''', N''''TipoPedido'''', N''''COLUMN'''';
+                ALTER TABLE [Pedidos] ALTER COLUMN [TipoPedido] nvarchar(30) NOT NULL;
+            ';
         END
         """);
 
@@ -330,6 +333,7 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context)
         END
         """);
 
+    // Igual tratamiento para Estado para evitar validación en compilación
     context.Database.ExecuteSqlRaw("""
         IF OBJECT_ID(N'[Pedidos]') IS NOT NULL
            AND EXISTS (
@@ -341,16 +345,18 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context)
            )
            AND COL_LENGTH(N'[Pedidos]', N'EstadoNuevo') IS NOT NULL
         BEGIN
-            UPDATE [Pedidos]
-               SET [EstadoNuevo] = CASE [Estado]
-                    WHEN 2 THEN N'Preparacion'
-                    WHEN 3 THEN N'Entregado'
-                    WHEN 4 THEN N'Cancelado'
-                    ELSE N'Pendiente'
-               END;
-            ALTER TABLE [Pedidos] DROP COLUMN [Estado];
-            EXEC sp_rename N'Pedidos.EstadoNuevo', N'Estado', N'COLUMN';
-            ALTER TABLE [Pedidos] ALTER COLUMN [Estado] nvarchar(30) NOT NULL;
+            EXEC sp_executesql N'
+                UPDATE [Pedidos]
+                   SET [EstadoNuevo] = CASE [Estado]
+                        WHEN 2 THEN N''''Preparacion''''
+                        WHEN 3 THEN N''''Entregado''''
+                        WHEN 4 THEN N''''Cancelado''''
+                        ELSE N''''Pendiente''''
+                   END;
+                ALTER TABLE [Pedidos] DROP COLUMN [Estado];
+                EXEC sp_rename N''''Pedidos.EstadoNuevo'''', N''''Estado'''', N''''COLUMN'''';
+                ALTER TABLE [Pedidos] ALTER COLUMN [Estado] nvarchar(30) NOT NULL;
+            ';
         END
         """);
 
@@ -361,7 +367,7 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context)
                 ALTER TABLE [Ventas] ADD [MetodoPagoId] int NOT NULL CONSTRAINT [DF_Ventas_MetodoPagoId] DEFAULT 1;
 
             IF COL_LENGTH(N'[Ventas]', N'PedidoId') IS NULL
-                ALTER TABLE [Ventas] ADD [PedidoId] int NOT NULL CONSTRAINT [DF_Ventas_PedidoId] DEFAULT 1;
+                ALTER TABLE [Ventas] ADD [PedidoId'] int NOT NULL CONSTRAINT [DF_Ventas_PedidoId] DEFAULT 1;
         END
         """);
 

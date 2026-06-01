@@ -15,9 +15,10 @@ namespace Bodinis.WebApp
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            // Cambiado el puerto por defecto de la API a 5260 para evitar conflictos de puerto (antes 5245)
             builder.Services.AddHttpClient("BodinisApi", client =>
             {
-                var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5245";
+                var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5260";
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
 
