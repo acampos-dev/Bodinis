@@ -8,6 +8,7 @@ namespace Bodinis.LogicaAplicacion.DTOs.Pedidos
         string? NombreCliente,
         string? TelefonoCliente,
         string? DireccionCliente,
+        int? MetodoPagoId,
         List<PedidoDetalleDtoAlta> Detalles)
     {
     }

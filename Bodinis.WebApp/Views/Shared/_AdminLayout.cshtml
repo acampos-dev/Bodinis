@@ -15,10 +15,20 @@
         <nav class="admin-nav">
             @foreach (var item in Model.Navigation)
             {
-                <a class="admin-nav-link @(item.IsActive ? "active" : null)" asp-controller="@item.Controller" asp-action="@item.Action">
-                    <span aria-hidden="true">@item.Icon</span>
-                    @item.Label
-                </a>
+                if (item.IsDisabled)
+                {
+                    <span class="admin-nav-link disabled @(item.IsActive ? "active" : null)" aria-disabled="true" title="@item.DisabledReason">
+                        <span aria-hidden="true">@item.Icon</span>
+                        @item.Label
+                    </span>
+                }
+                else
+                {
+                    <a class="admin-nav-link @(item.IsActive ? "active" : null)" asp-controller="@item.Controller" asp-action="@item.Action">
+                        <span aria-hidden="true">@item.Icon</span>
+                        @item.Label
+                    </a>
+                }
             }
         </nav>
     </aside>
@@ -30,6 +40,9 @@
                 <h1>@Model.Title</h1>
             </div>
             <div class="admin-user-area">
+                <a class="admin-cash-status @(Model.CajaAbierta ? "open" : "closed")" asp-controller="Admin" asp-action="Caja">
+                    @(Model.CajaAbierta ? "Caja abierta" : "Caja cerrada")
+                </a>
                 <span>@Model.UserName</span>
                 <a class="admin-user-pill" asp-controller="Auth" asp-action="Logout">Salir</a>
             </div>

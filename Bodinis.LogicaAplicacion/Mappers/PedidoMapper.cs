@@ -18,7 +18,7 @@ namespace Bodinis.LogicaAplicacion.Mappers
                 telefonoCliente: dto.TelefonoCliente,
                 direccionCliente: dto.DireccionCliente,
                 detalles: detallesList,
-                estado: EstadoPedido.Pendiente,
+                estado: dto.TipoPedido == TipoPedido.Mostrador ? EstadoPedido.Entregado : EstadoPedido.Pendiente,
                 total: total,
                 usuario: usuario);
         }

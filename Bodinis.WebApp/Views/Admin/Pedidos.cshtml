@@ -3,6 +3,12 @@
 @{
     ViewData["Title"] = "Pedidos";
     Layout = "_AdminLayout";
+    var categoriasConProductos = Model.Productos
+        .Select(producto => producto.Categoria)
+        .Where(categoria => !string.IsNullOrWhiteSpace(categoria))
+        .Distinct()
+        .OrderBy(categoria => categoria)
+        .ToList();
 }
 
 <section class="admin-page-heading">
@@ -27,112 +33,148 @@
     </div>
 }
 
-<section class="product-stats" aria-label="Resumen de pedidos">
-    <article>
-        <span>Pedidos activos</span>
-        <strong>@Model.PedidosActivos</strong>
-    </article>
-    <article>
-        <span>Total activo</span>
-        <strong>$ @Model.TotalPendiente</strong>
-    </article>
-    <article>
-        <span>Productos para venta</span>
-        <strong>@Model.Productos.Count</strong>
-    </article>
-</section>
-
-<section class="orders-workspace">
-    <div class="orders-catalog">
-        <div class="admin-table-toolbar">
-            <div>
-                <h3>Agregar productos</h3>
-                <p>Busca y suma productos al pedido.</p>
-            </div>
-            <input id="pedidoProductSearch" class="admin-search" type="search" placeholder="Buscar producto" aria-label="Buscar producto" />
+@if (!Model.CajaAbierta)
+{
+    <section class="cash-first-panel">
+        <div>
+            <p class="admin-kicker">Caja requerida</p>
+            <h2>Abrir caja antes de vender</h2>
+            <p>Los pedidos quedan bloqueados hasta abrir caja. Asi los cobros de mostrador, delivery entregados y gastos entran en el mismo cierre.</p>
         </div>
+        <a class="admin-primary-action" asp-controller="Admin" asp-action="Caja">Ir a caja</a>
+    </section>
+}
+else
+{
+    <section class="product-stats" aria-label="Resumen de pedidos">
+        <article>
+            <span>Delivery pendiente</span>
+            <strong>@Model.PedidosActivos</strong>
+        </article>
+        <article>
+            <span>Total pendiente</span>
+            <strong>$ @Model.TotalPendiente</strong>
+        </article>
+        <article>
+            <span>Productos para venta</span>
+            <strong>@Model.Productos.Count</strong>
+        </article>
+        <article>
+            <span>Categorias</span>
+            <strong>@categoriasConProductos.Count</strong>
+        </article>
+    </section>
 
-        <div class="order-product-list" id="pedidoProductList">
-            @foreach (var producto in Model.Productos)
+    <section class="orders-workspace">
+        <div class="orders-catalog">
+            <div class="admin-table-toolbar">
+                <div>
+                    <h3>Productos</h3>
+                    <p>Filtra por categoria y suma al ticket.</p>
+                </div>
+                <input id="pedidoProductSearch" class="admin-search" type="search" placeholder="Buscar producto" aria-label="Buscar producto" />
+            </div>
+
+            @if (categoriasConProductos.Any())
             {
-                <button class="order-product-item" type="button"
-                        data-id="@producto.Id"
-                        data-name="@producto.Nombre"
-                        data-price="@producto.Precio"
-                        data-stock="@producto.Stock"
-                        data-search="@($"{producto.Nombre} {producto.Categoria}".ToLowerInvariant())">
-                    <span>
-                        <strong>@producto.Nombre</strong>
-                        <small>@producto.Categoria · Stock @producto.Stock</small>
-                    </span>
-                    <b>$ @producto.Precio</b>
-                </button>
-            }
-        </div>
-    </div>
-
-    <form class="order-ticket" asp-controller="Admin" asp-action="CrearPedido" method="post">
-        @Html.AntiForgeryToken()
-        <div class="order-ticket-header">
-            <div>
-                <p class="admin-kicker">Nuevo pedido</p>
-                <h3>Detalle</h3>
-            </div>
-            <strong id="pedidoTotal">$ 0</strong>
-        </div>
-
-        <div class="order-mode">
-            <label>
-                <input type="radio" name="TipoPedido" value="1" checked />
-                Mostrador
-            </label>
-            <label>
-                <input type="radio" name="TipoPedido" value="2" />
-                Delivery
-            </label>
-        </div>
-
-        <div class="admin-form-grid compact">
-            <div class="admin-form-field full">
-                <label for="NombreCliente">Cliente</label>
-                <input id="NombreCliente" name="NombreCliente" type="text" placeholder="Nombre opcional" />
-            </div>
-            <div class="admin-form-field">
-                <label for="TelefonoCliente">Telefono</label>
-                <input id="TelefonoCliente" name="TelefonoCliente" type="text" placeholder="Telefono" />
-            </div>
-            <div class="admin-form-field">
-                <label for="MetodoPagoId">Cobro</label>
-                <select id="MetodoPagoId" name="MetodoPagoId">
-                    <option value="">A definir</option>
-                    @foreach (var metodo in Model.MetodosPago)
+                <div class="category-filter-bar" aria-label="Categorias de productos">
+                    <button class="category-filter active" type="button" data-category-filter="all">Todos</button>
+                    @foreach (var categoria in categoriasConProductos)
                     {
-                        <option value="@metodo.Id">@metodo.Nombre</option>
+                        <button class="category-filter" type="button" data-category-filter="@categoria">@categoria</button>
                     }
-                    <option value="0">Credito 1 cuota POS</option>
-                </select>
-            </div>
-            <div class="admin-form-field full" id="deliveryAddressField">
-                <label for="DireccionCliente">Direccion delivery</label>
-                <input id="DireccionCliente" name="DireccionCliente" type="text" placeholder="Direccion de entrega" />
+                </div>
+            }
+
+            <div class="order-product-list" id="pedidoProductList">
+                @if (!Model.Productos.Any())
+                {
+                    <div class="admin-empty-state">No hay productos disponibles para vender.</div>
+                }
+                else
+                {
+                    @foreach (var producto in Model.Productos)
+                    {
+                        <button class="order-product-item" type="button"
+                                data-id="@producto.Id"
+                                data-name="@producto.Nombre"
+                                data-price="@producto.Precio"
+                                data-stock="@producto.Stock"
+                                data-category="@producto.Categoria"
+                                data-search="@($"{producto.Nombre} {producto.Categoria}".ToLowerInvariant())">
+                            <span>
+                                <strong>@producto.Nombre</strong>
+                                <small>@producto.Categoria - Stock @producto.Stock</small>
+                            </span>
+                            <b>$ @producto.Precio</b>
+                        </button>
+                    }
+                }
             </div>
         </div>
 
-        <div class="order-lines" id="pedidoLines">
-            <div class="order-empty">Agrega productos desde la lista.</div>
-        </div>
+        <form class="order-ticket" asp-controller="Admin" asp-action="CrearPedido" method="post">
+            @Html.AntiForgeryToken()
+            <div class="order-ticket-header">
+                <div>
+                    <p class="admin-kicker">Nuevo pedido</p>
+                    <h3>Ticket</h3>
+                </div>
+                <strong id="pedidoTotal">$ 0</strong>
+            </div>
 
-        <div id="pedidoHiddenFields"></div>
+            <div class="order-mode" aria-label="Tipo de pedido">
+                <label>
+                    <input type="radio" name="TipoPedido" value="1" checked />
+                    Mostrador
+                </label>
+                <label>
+                    <input type="radio" name="TipoPedido" value="2" />
+                    Delivery
+                </label>
+            </div>
 
-        <button class="admin-primary-action order-submit" type="submit">Crear pedido</button>
-    </form>
-</section>
+            <div class="admin-form-grid compact">
+                <div class="admin-form-field full">
+                    <label for="NombreCliente">Cliente</label>
+                    <input id="NombreCliente" name="NombreCliente" type="text" placeholder="Nombre opcional" />
+                </div>
+                <div class="admin-form-field">
+                    <label for="TelefonoCliente">Telefono</label>
+                    <input id="TelefonoCliente" name="TelefonoCliente" type="text" placeholder="Telefono" />
+                </div>
+                <div class="admin-form-field" id="orderPaymentField">
+                    <label for="MetodoPagoId">Cobro mostrador</label>
+                    <select id="MetodoPagoId" name="MetodoPagoId">
+                        <option value="">Seleccionar</option>
+                        @foreach (var metodo in Model.MetodosPago)
+                        {
+                            <option value="@metodo.Id">@metodo.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="admin-form-field full" id="deliveryAddressField">
+                    <label for="DireccionCliente">Direccion delivery</label>
+                    <input id="DireccionCliente" name="DireccionCliente" type="text" placeholder="Direccion de entrega" />
+                </div>
+            </div>
+
+            <div class="order-lines" id="pedidoLines">
+                <div class="order-empty">Agrega productos desde la lista.</div>
+            </div>
+
+            <div id="pedidoHiddenFields"></div>
+
+            <button class="admin-primary-action order-submit" type="submit">Crear pedido</button>
+        </form>
+    </section>
+}
 
 <section class="admin-table-panel orders-history">
     <div class="admin-table-toolbar">
         <div>
-            <h3>Ultimos pedidos</h3>
-            <p>Seguimiento rapido de la operativa.</p>
+            <h3>Pedidos</h3>
+            <p>Ultimos pedidos y entregas pendientes.</p>
         </div>
     </div>
 
@@ -142,30 +184,36 @@
     }
     else
     {
-        <div class="admin-table-wrap">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Pedido</th>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var pedido in Model.Pedidos)
+        <div class="orders-card-list">
+            @foreach (var pedido in Model.Pedidos)
+            {
+                <article class="order-history-card @(pedido.PuedeEntregar ? "attention" : null)">
+                    <div class="order-history-main">
+                        <div>
+                            <strong>#@pedido.Id.ToString("D4")</strong>
+                            <span>@pedido.FechaHora.ToString("dd/MM HH:mm") - @pedido.TipoPedido</span>
+                        </div>
+                        <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
+                        <b>$ @pedido.Total</b>
+                    </div>
+
+                    @if (pedido.PuedeEntregar)
                     {
-                        <tr>
-                            <td><strong>#@pedido.Id.ToString("D4")</strong></td>
-                            <td>@pedido.FechaHora.ToString("dd/MM HH:mm")</td>
-                            <td>@pedido.TipoPedido</td>
-                            <td><span class="status-pill available">@pedido.Estado</span></td>
-                            <td>$ @pedido.Total</td>
-                        </tr>
+                        <form class="delivery-complete-form" asp-controller="Admin" asp-action="EntregarPedido" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@pedido.Id" />
+                            <select name="metodoPagoId" aria-label="Metodo de pago para entregar pedido" required>
+                                <option value="">Metodo de pago</option>
+                                @foreach (var metodo in Model.MetodosPago)
+                                {
+                                    <option value="@metodo.Id">@metodo.Nombre</option>
+                                }
+                            </select>
+                            <button class="admin-primary-action" type="submit">Entregar</button>
+                        </form>
                     }
-                </tbody>
-            </table>
+                </article>
+            }
         </div>
     }
 </section>

@@ -1,38 +1,100 @@
-@model AdminPageViewModel
+@model AdminInicioViewModel
 
 @{
-    ViewData["Title"] = "Panel administrativo";
+    ViewData["Title"] = "Panel diario";
     Layout = "_AdminLayout";
 }
 
-<section class="admin-welcome">
-    <div>
-        <p class="admin-kicker">Administración</p>
-        <h2>Todo listo para ordenar la gestión diaria.</h2>
-        <p>@Model.Subtitle</p>
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="admin-inline-success" role="status">
+        @Model.SuccessMessage
     </div>
-    <a class="admin-primary-action" asp-controller="Admin" asp-action="Productos">Ir a productos</a>
-</section>
+}
 
-<section class="admin-section-grid" aria-label="Secciones del panel">
-    <a class="admin-section-card" asp-controller="Admin" asp-action="Productos">
-        <span>▦</span>
-        <strong>Productos</strong>
-        <p>Catálogo, precios, stock y disponibilidad.</p>
-    </a>
-    <article class="admin-section-card muted">
-        <span>◇</span>
-        <strong>Categorías</strong>
-        <p>Organización del menú y familias de productos.</p>
-    </article>
-    <article class="admin-section-card muted">
-        <span>☰</span>
-        <strong>Pedidos</strong>
-        <p>Seguimiento operativo de pedidos activos.</p>
-    </article>
-    <article class="admin-section-card muted">
-        <span>$</span>
-        <strong>Ventas</strong>
-        <p>Resumen comercial y movimientos diarios.</p>
-    </article>
-</section>
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="admin-inline-alert" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+@if (!Model.CajaAbierta)
+{
+    <section class="cash-first-panel">
+        <div>
+            <p class="admin-kicker">Antes de operar</p>
+            <h2>Abrir caja</h2>
+            <p>La caja cerrada bloquea la carga de pedidos para que ventas, gastos y cierre queden consistentes desde el primer movimiento.</p>
+        </div>
+        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post">
+            @Html.AntiForgeryToken()
+            <label for="montoInicialInicio">Monto inicial</label>
+            <div>
+                <input id="montoInicialInicio" name="montoInicial" type="number" min="0" step="1" value="0" />
+                <button class="admin-primary-action" type="submit">Abrir caja</button>
+            </div>
+        </form>
+    </section>
+}
+else
+{
+    <section class="admin-welcome daily-hero">
+        <div>
+            <p class="admin-kicker">Caja abierta desde @Model.CajaActual?.FechaApertura.ToString("HH:mm")</p>
+            <h2>Listo para vender.</h2>
+            <p>@Model.Subtitle</p>
+        </div>
+        <a class="admin-primary-action" asp-controller="Admin" asp-action="Pedidos">Realizar un pedido</a>
+    </section>
+
+    <section class="product-stats" aria-label="Resumen del dia">
+        <article>
+            <span>Pedidos hoy</span>
+            <strong>@Model.TotalPedidosHoy</strong>
+        </article>
+        <article>
+            <span>Mostrador cobrado</span>
+            <strong>@Model.MostradorCobrado</strong>
+        </article>
+        <article>
+            <span>Delivery pendiente</span>
+            <strong>@Model.DeliveryPendiente</strong>
+        </article>
+        <article>
+            <span>Cobrado hoy</span>
+            <strong>$ @Model.TotalCobradoHoy</strong>
+        </article>
+    </section>
+
+    <section class="admin-table-panel orders-history">
+        <div class="admin-table-toolbar">
+            <div>
+                <h3>Pedidos del dia</h3>
+                <p>Ultimos movimientos de la jornada.</p>
+            </div>
+            <a class="admin-secondary-action" asp-controller="Admin" asp-action="Pedidos">Ver pedidos</a>
+        </div>
+
+        @if (!Model.PedidosDelDia.Any())
+        {
+            <div class="admin-empty-state">Todavia no hay pedidos cargados hoy.</div>
+        }
+        else
+        {
+            <div class="orders-card-list compact-list">
+                @foreach (var pedido in Model.PedidosDelDia)
+                {
+                    <article class="order-history-card">
+                        <div>
+                            <strong>#@pedido.Id.ToString("D4")</strong>
+                            <span>@pedido.FechaHora.ToString("HH:mm") - @pedido.TipoPedido</span>
+                        </div>
+                        <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
+                        <b>$ @pedido.Total</b>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+}

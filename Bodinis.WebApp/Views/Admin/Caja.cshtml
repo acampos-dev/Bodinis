@@ -1,0 +1,160 @@
+@model AdminCajaViewModel
+
+@{
+    ViewData["Title"] = "Caja";
+    Layout = "_AdminLayout";
+}
+
+<section class="admin-page-heading">
+    <div>
+        <p class="admin-kicker">Finanzas</p>
+        <h2>Caja</h2>
+        <p>@Model.Subtitle</p>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="admin-inline-success" role="status">
+        @Model.SuccessMessage
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="admin-inline-alert" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+@if (!Model.CajaAbierta)
+{
+    <section class="cash-first-panel">
+        <div>
+            <p class="admin-kicker">Caja cerrada</p>
+            <h2>Abrir caja</h2>
+            <p>Al abrir caja se habilita la carga de pedidos y queda registrado el monto inicial del turno.</p>
+        </div>
+        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post">
+            @Html.AntiForgeryToken()
+            <label for="montoInicial">Monto inicial</label>
+            <div>
+                <input id="montoInicial" name="montoInicial" type="number" min="0" step="1" value="0" />
+                <button class="admin-primary-action" type="submit">Abrir caja</button>
+            </div>
+        </form>
+    </section>
+}
+else
+{
+    <section class="cash-summary-grid" aria-label="Resumen de caja">
+        <article>
+            <span>Apertura</span>
+            <strong>$ @Model.CajaActual?.MontoApertura</strong>
+            <small>@Model.CajaActual?.FechaApertura.ToString("dd/MM HH:mm")</small>
+        </article>
+        <article>
+            <span>Ventas</span>
+            <strong>$ @Model.CajaActual?.TotalVentas</strong>
+            <small>Pedidos cobrados</small>
+        </article>
+        <article>
+            <span>Gastos</span>
+            <strong>$ @Model.CajaActual?.TotalGastos</strong>
+            <small>@Model.CantidadGastos movimientos</small>
+        </article>
+        <article>
+            <span>Saldo calculado</span>
+            <strong>$ @Model.CajaActual?.SaldoCalculado</strong>
+            <small>Apertura + ventas - gastos</small>
+        </article>
+    </section>
+
+    <section class="cash-workspace">
+        <form class="cash-form-panel" asp-controller="Admin" asp-action="RegistrarGasto" method="post">
+            @Html.AntiForgeryToken()
+            <div class="admin-table-toolbar flush">
+                <div>
+                    <h3>Agregar gasto</h3>
+                    <p>Registra salidas de dinero de la caja actual.</p>
+                </div>
+            </div>
+            <div class="admin-form-grid compact padded">
+                <div class="admin-form-field full">
+                    <label for="descripcion">Descripcion</label>
+                    <input id="descripcion" name="descripcion" type="text" maxlength="200" placeholder="Ej: compra de insumos" required />
+                </div>
+                <div class="admin-form-field">
+                    <label for="monto">Monto</label>
+                    <input id="monto" name="monto" type="number" min="1" step="1" placeholder="0" required />
+                </div>
+                <div class="admin-form-field">
+                    <label for="categoria">Categoria</label>
+                    <input id="categoria" name="categoria" type="text" maxlength="80" placeholder="Insumos, envio, varios" />
+                </div>
+            </div>
+            <div class="cash-panel-footer">
+                <button class="admin-primary-action" type="submit">Registrar gasto</button>
+            </div>
+        </form>
+
+        <form class="cash-form-panel" asp-controller="Admin" asp-action="CerrarCaja" method="post">
+            @Html.AntiForgeryToken()
+            <div class="admin-table-toolbar flush">
+                <div>
+                    <h3>Cerrar caja</h3>
+                    <p>Cuenta el efectivo final antes de cerrar el turno.</p>
+                </div>
+            </div>
+            <div class="admin-form-grid compact padded">
+                <div class="admin-form-field full">
+                    <label for="montoFinal">Monto final contado</label>
+                    <input id="montoFinal" name="montoFinal" type="number" min="0" step="1" value="@Model.CajaActual?.SaldoCalculado" />
+                </div>
+            </div>
+            <div class="cash-panel-footer">
+                <button class="admin-danger-action" type="submit">Cerrar caja</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="admin-table-panel orders-history">
+        <div class="admin-table-toolbar">
+            <div>
+                <h3>Gastos de caja</h3>
+                <p>Movimientos registrados en la caja actual.</p>
+            </div>
+        </div>
+
+        @if (!Model.Gastos.Any())
+        {
+            <div class="admin-empty-state">No hay gastos registrados en esta caja.</div>
+        }
+        else
+        {
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Descripcion</th>
+                            <th>Categoria</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var gasto in Model.Gastos)
+                        {
+                            <tr>
+                                <td>@gasto.FechaHora.ToString("HH:mm")</td>
+                                <td><strong>@gasto.Descripcion</strong></td>
+                                <td>@(string.IsNullOrWhiteSpace(gasto.Categoria) ? "Sin categoria" : gasto.Categoria)</td>
+                                <td>$ @gasto.Monto</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
