@@ -308,11 +308,11 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context) // Repara el es
             EXEC sp_executesql N'
                 UPDATE [Pedidos]
                    SET [TipoPedidoNuevo] = CASE [TipoPedido]
-                        WHEN 2 THEN N''''Delivery''''
-                        ELSE N''''Mostrador''''
+                        WHEN 2 THEN N''Delivery''
+                        ELSE N''Mostrador''
                    END;
                 ALTER TABLE [Pedidos] DROP COLUMN [TipoPedido];
-                EXEC sp_rename N''''Pedidos.TipoPedidoNuevo'''', N''''TipoPedido'''', N''''COLUMN'''';
+                EXEC sp_rename N''Pedidos.TipoPedidoNuevo'', N''TipoPedido'', N''COLUMN'';
                 ALTER TABLE [Pedidos] ALTER COLUMN [TipoPedido] nvarchar(30) NOT NULL;
             ';
         END
@@ -348,13 +348,13 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context) // Repara el es
             EXEC sp_executesql N'
                 UPDATE [Pedidos]
                    SET [EstadoNuevo] = CASE [Estado]
-                        WHEN 2 THEN N''''Preparacion''''
-                        WHEN 3 THEN N''''Entregado''''
-                        WHEN 4 THEN N''''Cancelado''''
-                        ELSE N''''Pendiente''''
+                        WHEN 2 THEN N''Preparacion''
+                        WHEN 3 THEN N''Entregado''
+                        WHEN 4 THEN N''Cancelado''
+                        ELSE N''Pendiente''
                    END;
                 ALTER TABLE [Pedidos] DROP COLUMN [Estado];
-                EXEC sp_rename N''''Pedidos.EstadoNuevo'''', N''''Estado'''', N''''COLUMN'''';
+                EXEC sp_rename N''Pedidos.EstadoNuevo'', N''Estado'', N''COLUMN'';
                 ALTER TABLE [Pedidos] ALTER COLUMN [Estado] nvarchar(30) NOT NULL;
             ';
         END
@@ -367,7 +367,7 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context) // Repara el es
                 ALTER TABLE [Ventas] ADD [MetodoPagoId] int NOT NULL CONSTRAINT [DF_Ventas_MetodoPagoId] DEFAULT 1;
 
             IF COL_LENGTH(N'[Ventas]', N'PedidoId') IS NULL
-                ALTER TABLE [Ventas] ADD [PedidoId'] int NOT NULL CONSTRAINT [DF_Ventas_PedidoId] DEFAULT 1;
+                ALTER TABLE [Ventas] ADD [PedidoId] int NOT NULL CONSTRAINT [DF_Ventas_PedidoId] DEFAULT 1;
         END
         """);
 
