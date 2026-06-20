@@ -208,7 +208,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -261,6 +264,21 @@ static void RepararEsquemaLocalDesfasado(BodinisContext context) // Repara el es
             );
 
             CREATE INDEX [IX_Gastos_CajaId] ON [Gastos] ([CajaId]);
+        END
+
+        IF OBJECT_ID(N'[Cajas]') IS NOT NULL
+           AND COL_LENGTH(N'[Cajas]', N'EstaAbierta') IS NULL
+        BEGIN
+            ALTER TABLE [Cajas] ADD [EstaAbierta] bit NULL;
+
+            EXEC sp_executesql N'
+                UPDATE [Cajas]
+                   SET [EstaAbierta] = CASE
+                        WHEN [FechaCierre] IS NULL THEN CAST(1 AS bit)
+                        ELSE CAST(0 AS bit)
+                   END;
+                ALTER TABLE [Cajas] ALTER COLUMN [EstaAbierta] bit NOT NULL;
+            ';
         END
         """);
 
