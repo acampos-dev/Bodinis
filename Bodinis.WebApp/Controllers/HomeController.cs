@@ -15,18 +15,28 @@ namespace Bodinis.WebApp.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToEntryPoint();
         }
 
         public IActionResult Privacy()
         {
-            return View();
+            return RedirectToEntryPoint();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private IActionResult RedirectToEntryPoint()
+        {
+            if (!string.IsNullOrWhiteSpace(HttpContext.Session.GetString("AuthToken")))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
+            return RedirectToAction("Login", "Auth");
         }
     }
 }

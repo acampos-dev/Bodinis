@@ -140,7 +140,19 @@ dotnet run --project Bodinis.WebApi
 Con el perfil `http`, Swagger queda disponible en:
 
 ```text
-http://localhost:5245/swagger
+http://localhost:5260/swagger
+```
+
+5. Ejecutar la WebApp MVC:
+
+```bash
+dotnet run --project Bodinis.WebApp --launch-profile http
+```
+
+La WebApp queda disponible en:
+
+```text
+http://localhost:5250
 ```
 
 ## Flujo sugerido para probar
@@ -156,5 +168,5 @@ http://localhost:5245/swagger
 
 ## Estado del proyecto
 
-Backend del MVP funcional.
-Quedan como proximos pasos: reportes PDF, vistas MVC, tests automatizados y mejoras de gestion de usuarios.
+MVP funcional con API y WebApp MVC para operar login, caja, productos, pedidos, ventas y gastos.
+Quedan como proximos pasos opcionales: reportes PDF, tests automatizados y mejoras de gestion de usuarios.
