@@ -9,8 +9,9 @@ namespace Bodinis.WebApp.Controllers
 {
     public class AdminController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        private readonly IHttpClientFactory _httpClientFactory; // Inyección de IHttpClientFactory para crear instancias de HttpClient
+
+        private static readonly JsonSerializerOptions JsonOptions = new() // Configuración de opciones de serialización JSON
         {
             PropertyNameCaseInsensitive = true
         };
