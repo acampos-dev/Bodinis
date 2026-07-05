@@ -1,4 +1,4 @@
-﻿
+
 
 using Bodinis.LogicaNegocio.Excepciones;
 using Bodinis.LogicaNegocio.InterfacesLogicaNegocio;
@@ -37,10 +37,6 @@ namespace Bodinis.LogicaNegocio.Entidades
             if (Stock < 0)
             {
                 throw new StockInvalidoException("El stock no puede ser negativo.");
-            }
-            if(!Disponible && Stock > 0)
-            {
-                throw new ProductoNoDisponibleException("Un producto no disponible no puede tener stock.");
             }
             if(NombreProducto == null)
             {

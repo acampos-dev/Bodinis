@@ -27,11 +27,16 @@
             <h2>Abrir caja</h2>
             <p>La caja cerrada bloquea la carga de pedidos para que ventas, gastos y cierre queden consistentes desde el primer movimiento.</p>
         </div>
-        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post">
+        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post"
+              data-confirm-message="Confirmas la apertura de caja?"
+              data-confirm-amount-input="#montoInicialInicio">
             @Html.AntiForgeryToken()
             <label for="montoInicialInicio">Monto inicial</label>
             <div>
-                <input id="montoInicialInicio" name="montoInicial" type="number" min="0" step="1" value="0" />
+                <span class="money-input-shell">
+                    <span aria-hidden="true">$</span>
+                    <input id="montoInicialInicio" name="montoInicial" type="text" inputmode="numeric" data-money-input value="0" />
+                </span>
                 <button class="admin-primary-action" type="submit">Abrir caja</button>
             </div>
         </form>
@@ -41,10 +46,11 @@ else
 {
     <section class="admin-welcome daily-hero">
         <div>
-            <p class="admin-kicker">Caja abierta desde @Model.CajaActual?.FechaApertura.ToString("HH:mm")</p>
+            <p class="admin-kicker">Caja abierta desde @Model.CajaActual?.FechaApertura.ToString("dd/MM/yyyy HH:mm")</p>
             <h2>Listo para vender.</h2>
             <p>@Model.Subtitle</p>
         </div>
+        <img class="daily-hero-art" src="~/img/bodinis-personajes.png" alt="" aria-hidden="true" />
         <a class="admin-primary-action" asp-controller="Admin" asp-action="Pedidos">Realizar un pedido</a>
     </section>
 
@@ -63,7 +69,7 @@ else
         </article>
         <article>
             <span>Cobrado hoy</span>
-            <strong>$ @Model.TotalCobradoHoy</strong>
+            <strong>@MoneyFormatter.Format(Model.TotalCobradoHoy)</strong>
         </article>
     </section>
 
@@ -91,7 +97,7 @@ else
                             <span>@pedido.FechaHora.ToString("HH:mm") - @pedido.TipoPedido</span>
                         </div>
                         <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
-                        <b>$ @pedido.Total</b>
+                        <b>@MoneyFormatter.Format(pedido.Total)</b>
                     </article>
                 }
             </div>

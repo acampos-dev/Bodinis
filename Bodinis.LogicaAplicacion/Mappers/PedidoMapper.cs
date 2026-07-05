@@ -25,12 +25,26 @@ namespace Bodinis.LogicaAplicacion.Mappers
 
         public static PedidoDtoListado ToDto(Pedido pedido)
         {
+            var detalles = pedido.Detalles
+                .Select(detalle => new PedidoDetalleDtoListado(
+                    detalle.ProductoId,
+                    detalle.Producto.NombreProducto.Valor,
+                    detalle.Cantidad,
+                    detalle.PrecioUnitario,
+                    detalle.Subtotal))
+                .ToList();
+
             return new PedidoDtoListado(
                 pedido.Id,
                 pedido.FechaHora,
                 pedido.TipoPedido,
                 pedido.Estado,
-                pedido.Total);
+                pedido.Total,
+                pedido.NombreCliente,
+                pedido.TelefonoCliente,
+                pedido.DireccionCliente,
+                pedido.Venta?.MetodoPago?.Nombre,
+                detalles);
         }
 
         public static IEnumerable<PedidoDtoListado> ToListDto(IEnumerable<Pedido> pedidos)

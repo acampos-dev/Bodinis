@@ -1,0 +1,195 @@
+@model AdminCategoriasViewModel
+
+@{
+    ViewData["Title"] = "Categorias";
+    Layout = "_AdminLayout";
+}
+
+<section class="admin-page-heading">
+    <div>
+        <p class="admin-kicker">Catalogo</p>
+        <h2>Categorias</h2>
+        <p>@Model.Subtitle</p>
+    </div>
+    <button class="admin-primary-action" type="button" data-bs-toggle="modal" data-bs-target="#nuevaCategoriaModal">
+        Nueva categoria
+    </button>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="admin-inline-success" role="status">
+        @Model.SuccessMessage
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="admin-inline-alert" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+<section class="product-stats" aria-label="Resumen de categorias">
+    <article>
+        <span>Total categorias</span>
+        <strong>@Model.TotalCategorias</strong>
+    </article>
+    <article>
+        <span>En uso</span>
+        <strong>@Model.CategoriasEnUso</strong>
+    </article>
+    <article>
+        <span>Sin productos</span>
+        <strong>@Model.CategoriasLibres</strong>
+    </article>
+</section>
+
+<section class="admin-table-panel">
+    <div class="admin-table-toolbar">
+        <div>
+            <h3>Listado</h3>
+            <p>Cambios puntuales del catalogo de productos.</p>
+        </div>
+    </div>
+
+    @if (!Model.Categorias.Any())
+    {
+        <div class="admin-empty-state">No hay categorias cargadas todavia.</div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Productos asociados</th>
+                        <th>Estado</th>
+                        <th class="admin-actions-col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var categoria in Model.Categorias)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@categoria.Nombre</strong>
+                                <span>#@categoria.Id.ToString("D3")</span>
+                            </td>
+                            <td>@categoria.CantidadProductos</td>
+                            <td>
+                                <span class="status-pill @(categoria.PuedeEliminar ? "available" : "pending")">
+                                    @(categoria.PuedeEliminar ? "Libre" : "En uso")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="admin-row-actions">
+                                    <button type="button" title="Editar" data-bs-toggle="modal" data-bs-target="#editarCategoriaModal@categoria.Id">Ed</button>
+                                    @if (categoria.PuedeEliminar)
+                                    {
+                                        <button type="button" title="Eliminar" data-bs-toggle="modal" data-bs-target="#eliminarCategoriaModal@categoria.Id">X</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" title="Primero cambia los productos de categoria" disabled>X</button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<div class="modal fade admin-modal" id="nuevaCategoriaModal" tabindex="-1" aria-labelledby="nuevaCategoriaTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Admin" asp-action="CrearCategoria" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <div>
+                        <p class="admin-kicker">Catalogo</p>
+                        <h2 class="modal-title" id="nuevaCategoriaTitle">Nueva categoria</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="admin-form-grid">
+                        <div class="admin-form-field full">
+                            <label for="NombreCategoriaNueva">Nombre</label>
+                            <input id="NombreCategoriaNueva" name="Nombre" type="text" maxlength="80" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-primary-action">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@foreach (var categoria in Model.Categorias)
+{
+    <div class="modal fade admin-modal" id="editarCategoriaModal@categoria.Id" tabindex="-1" aria-labelledby="editarCategoriaTitle@categoria.Id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-controller="Admin" asp-action="EditarCategoria" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@categoria.Id" />
+                    <div class="modal-header">
+                        <div>
+                            <p class="admin-kicker">Catalogo</p>
+                            <h2 class="modal-title" id="editarCategoriaTitle@categoria.Id">Editar categoria</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="admin-form-grid">
+                            <div class="admin-form-field full">
+                                <label for="NombreCategoria@categoria.Id">Nombre</label>
+                                <input id="NombreCategoria@categoria.Id" name="Nombre" type="text" maxlength="80" value="@categoria.Nombre" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="admin-primary-action">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (categoria.PuedeEliminar)
+    {
+        <div class="modal fade admin-modal" id="eliminarCategoriaModal@categoria.Id" tabindex="-1" aria-labelledby="eliminarCategoriaTitle@categoria.Id" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                    <form asp-controller="Admin" asp-action="EliminarCategoria" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@categoria.Id" />
+                        <div class="modal-header">
+                            <div>
+                                <p class="admin-kicker">Confirmacion</p>
+                                <h2 class="modal-title" id="eliminarCategoriaTitle@categoria.Id">Eliminar categoria</h2>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="admin-confirm-text">Estas seguro de eliminar <strong>@categoria.Nombre</strong>?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="admin-secondary-action" data-bs-dismiss="modal">No</button>
+                            <button type="submit" class="admin-danger-action">Si, eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}

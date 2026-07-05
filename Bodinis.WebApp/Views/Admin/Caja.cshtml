@@ -35,11 +35,16 @@
             <h2>Abrir caja</h2>
             <p>Al abrir caja se habilita la carga de pedidos y queda registrado el monto inicial del turno.</p>
         </div>
-        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post">
+        <form class="cash-open-form" asp-controller="Admin" asp-action="AbrirCaja" method="post"
+              data-confirm-message="Confirmas la apertura de caja?"
+              data-confirm-amount-input="#montoInicial">
             @Html.AntiForgeryToken()
             <label for="montoInicial">Monto inicial</label>
             <div>
-                <input id="montoInicial" name="montoInicial" type="number" min="0" step="1" value="0" />
+                <span class="money-input-shell">
+                    <span aria-hidden="true">$</span>
+                    <input id="montoInicial" name="montoInicial" type="text" inputmode="numeric" data-money-input value="0" />
+                </span>
                 <button class="admin-primary-action" type="submit">Abrir caja</button>
             </div>
         </form>
@@ -50,22 +55,22 @@ else
     <section class="cash-summary-grid" aria-label="Resumen de caja">
         <article>
             <span>Apertura</span>
-            <strong>$ @Model.CajaActual?.MontoApertura</strong>
+            <strong>@MoneyFormatter.Format(Model.CajaActual?.MontoApertura)</strong>
             <small>@Model.CajaActual?.FechaApertura.ToString("dd/MM HH:mm")</small>
         </article>
         <article>
             <span>Ventas</span>
-            <strong>$ @Model.CajaActual?.TotalVentas</strong>
+            <strong>@MoneyFormatter.Format(Model.CajaActual?.TotalVentas)</strong>
             <small>Pedidos cobrados</small>
         </article>
         <article>
             <span>Gastos</span>
-            <strong>$ @Model.CajaActual?.TotalGastos</strong>
+            <strong>@MoneyFormatter.Format(Model.CajaActual?.TotalGastos)</strong>
             <small>@Model.CantidadGastos movimientos</small>
         </article>
         <article>
             <span>Saldo calculado</span>
-            <strong>$ @Model.CajaActual?.SaldoCalculado</strong>
+            <strong>@MoneyFormatter.Format(Model.CajaActual?.SaldoCalculado)</strong>
             <small>Apertura + ventas - gastos</small>
         </article>
     </section>
@@ -86,11 +91,10 @@ else
                 </div>
                 <div class="admin-form-field">
                     <label for="monto">Monto</label>
-                    <input id="monto" name="monto" type="number" min="1" step="1" placeholder="0" required />
-                </div>
-                <div class="admin-form-field">
-                    <label for="categoria">Categoria</label>
-                    <input id="categoria" name="categoria" type="text" maxlength="80" placeholder="Insumos, envio, varios" />
+                    <span class="money-input-shell">
+                        <span aria-hidden="true">$</span>
+                        <input id="monto" name="monto" type="text" inputmode="numeric" data-money-input placeholder="0" required />
+                    </span>
                 </div>
             </div>
             <div class="cash-panel-footer">
@@ -98,7 +102,9 @@ else
             </div>
         </form>
 
-        <form class="cash-form-panel" asp-controller="Admin" asp-action="CerrarCaja" method="post">
+        <form class="cash-form-panel" asp-controller="Admin" asp-action="CerrarCaja" method="post"
+              data-confirm-message="Confirmas el cierre de caja?"
+              data-confirm-amount-input="#montoFinal">
             @Html.AntiForgeryToken()
             <div class="admin-table-toolbar flush">
                 <div>
@@ -109,7 +115,10 @@ else
             <div class="admin-form-grid compact padded">
                 <div class="admin-form-field full">
                     <label for="montoFinal">Monto final contado</label>
-                    <input id="montoFinal" name="montoFinal" type="number" min="0" step="1" value="@Model.CajaActual?.SaldoCalculado" />
+                    <span class="money-input-shell">
+                        <span aria-hidden="true">$</span>
+                        <input id="montoFinal" name="montoFinal" type="text" inputmode="numeric" data-money-input value="@Model.CajaActual?.SaldoCalculado" />
+                    </span>
                 </div>
             </div>
             <div class="cash-panel-footer">
@@ -138,7 +147,6 @@ else
                         <tr>
                             <th>Hora</th>
                             <th>Descripcion</th>
-                            <th>Categoria</th>
                             <th>Monto</th>
                         </tr>
                     </thead>
@@ -148,8 +156,7 @@ else
                             <tr>
                                 <td>@gasto.FechaHora.ToString("HH:mm")</td>
                                 <td><strong>@gasto.Descripcion</strong></td>
-                                <td>@(string.IsNullOrWhiteSpace(gasto.Categoria) ? "Sin categoria" : gasto.Categoria)</td>
-                                <td>$ @gasto.Monto</td>
+                                <td>@MoneyFormatter.Format(gasto.Monto)</td>
                             </tr>
                         }
                     </tbody>

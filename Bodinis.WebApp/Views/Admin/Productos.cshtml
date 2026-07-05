@@ -9,12 +9,15 @@
 <section class="admin-page-heading">
     <div>
         <p class="admin-kicker">Catalogo</p>
-        <h2>Gestión de Productos</h2>
+        <h2>GestiÃ³n de Productos</h2>
         <p>@Model.Subtitle</p>
     </div>
-    <button class="admin-primary-action" type="button" data-bs-toggle="modal" data-bs-target="#nuevoProductoModal">
-        Nuevo producto
-    </button>
+    <div class="admin-heading-actions">
+        <a class="admin-secondary-action" asp-controller="Admin" asp-action="Categorias">Categorias</a>
+        <button class="admin-primary-action" type="button" data-bs-toggle="modal" data-bs-target="#nuevoProductoModal">
+            Nuevo producto
+        </button>
+    </div>
 </section>
 
 @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
@@ -85,11 +88,11 @@
                                 <span>#@producto.Id.ToString("D3")</span>
                             </td>
                             <td>@producto.Categoria</td>
-                            <td>$ @producto.Precio</td>
+                            <td>@MoneyFormatter.Format(producto.Precio)</td>
                             <td>@producto.Stock</td>
                             <td>
                                 <span class="status-pill @(producto.Disponible ? "available" : "unavailable")">
-                                    @(producto.Disponible ? "Disponible" : "Sin stock")
+                                    @(producto.Disponible ? "Disponible" : "No disponible")
                                 </span>
                             </td>
                             <td>

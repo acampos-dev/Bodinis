@@ -9,9 +9,9 @@ namespace Bodinis.WebApp.Controllers
 {
     public class AdminController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory; // Inyección de IHttpClientFactory para crear instancias de HttpClient
+        private readonly IHttpClientFactory _httpClientFactory; // InyecciÃ³n de IHttpClientFactory para crear instancias de HttpClient
 
-        private static readonly JsonSerializerOptions JsonOptions = new() // Configuración de opciones de serialización JSON
+        private static readonly JsonSerializerOptions JsonOptions = new() // ConfiguraciÃ³n de opciones de serializaciÃ³n JSON
         {
             PropertyNameCaseInsensitive = true
         };
@@ -40,6 +40,17 @@ namespace Bodinis.WebApp.Controllers
             }
 
             var model = await BuildProductosModel();
+            return View(model);
+        }
+
+        public async Task<IActionResult> Categorias()
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var model = await BuildCategoriasModel();
             return View(model);
         }
 
@@ -119,7 +130,7 @@ namespace Bodinis.WebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegistrarGasto(string descripcion, int monto, string? categoria)
+        public async Task<IActionResult> RegistrarGasto(string descripcion, int monto)
         {
             if (!IsLoggedIn())
             {
@@ -136,7 +147,7 @@ namespace Bodinis.WebApp.Controllers
             {
                 Descripcion = descripcion.Trim(),
                 Monto = monto,
-                Categoria = string.IsNullOrWhiteSpace(categoria) ? null : categoria.Trim()
+                Categoria = null
             }));
 
             await SetCajaOperationMessage(response, "Gasto registrado correctamente.", "No se pudo registrar el gasto.");
@@ -212,6 +223,12 @@ namespace Bodinis.WebApp.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                var ticketPedidoId = await TryGetUltimoPedidoCreadoId();
+                if (ticketPedidoId.HasValue)
+                {
+                    TempData["PedidoTicketId"] = ticketPedidoId.Value;
+                }
+
                 TempData["PedidosSuccess"] = form.TipoPedido == 1
                     ? "Pedido de mostrador cobrado correctamente."
                     : "Delivery creado como pendiente.";
@@ -340,6 +357,74 @@ namespace Bodinis.WebApp.Controllers
             return RedirectToAction(nameof(Productos));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearCategoria(CategoriaFormViewModel form)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["CategoriesError"] = "Ingresa un nombre valido para la categoria.";
+                return RedirectToAction(nameof(Categorias));
+            }
+
+            var response = await SendApiRequest(client => client.PostAsJsonAsync("api/categorias", new CategoriaApiWriteRequest
+            {
+                Nombre = form.Nombre.Trim()
+            }));
+
+            await SetCategoryOperationMessage(response, "Categoria creada correctamente.", "No se pudo crear la categoria.");
+            return RedirectToAction(nameof(Categorias));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarCategoria(CategoriaFormViewModel form)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (!ModelState.IsValid || form.Id <= 0)
+            {
+                TempData["CategoriesError"] = "Revisa los datos de la categoria.";
+                return RedirectToAction(nameof(Categorias));
+            }
+
+            var response = await SendApiRequest(client => client.PutAsJsonAsync($"api/categorias/{form.Id}", new CategoriaApiWriteRequest
+            {
+                Nombre = form.Nombre.Trim()
+            }));
+
+            await SetCategoryOperationMessage(response, "Categoria actualizada correctamente.", "No se pudo actualizar la categoria.");
+            return RedirectToAction(nameof(Categorias));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarCategoria(int id)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            if (id <= 0)
+            {
+                TempData["CategoriesError"] = "No se encontro la categoria a eliminar.";
+                return RedirectToAction(nameof(Categorias));
+            }
+
+            var response = await SendApiRequest(client => client.DeleteAsync($"api/categorias/{id}"));
+            await SetCategoryOperationMessage(response, "Categoria eliminada correctamente.", "No se pudo eliminar la categoria.");
+            return RedirectToAction(nameof(Categorias));
+        }
+
         private async Task<AdminInicioViewModel> BuildInicioModel()
         {
             var model = new AdminInicioViewModel
@@ -437,6 +522,33 @@ namespace Bodinis.WebApp.Controllers
             return model;
         }
 
+        private async Task<AdminCategoriasViewModel> BuildCategoriasModel()
+        {
+            var model = new AdminCategoriasViewModel
+            {
+                Title = "Categorias",
+                Subtitle = "Administra las categorias del catalogo cuando el negocio necesite ajustar la oferta.",
+                ActiveSection = "Categorias",
+                UserName = GetUserName(),
+                Navigation = BuildNavigation("Categorias", cajaAbierta: false),
+                SuccessMessage = TempData["CategoriesSuccess"] as string,
+                ErrorMessage = TempData["CategoriesError"] as string
+            };
+
+            try
+            {
+                var client = CreateApiClient();
+                ApplyCajaState(model, "Categorias", await GetCajaActual(client));
+                model.Categorias = await GetCategoriasAdmin(client);
+            }
+            catch (HttpRequestException)
+            {
+                model.ErrorMessage = "No se pudo conectar con la API. Verifica que Bodinis.WebApi este corriendo.";
+            }
+
+            return model;
+        }
+
         private async Task<AdminPedidosViewModel> BuildPedidosModel()
         {
             var model = new AdminPedidosViewModel
@@ -458,11 +570,21 @@ namespace Bodinis.WebApp.Controllers
                 model.MetodosPago = await GetMetodosPago(client);
 
                 var pedidos = await GetPedidos(client);
+                var ticketPedidoId = GetTempDataInt("PedidoTicketId");
                 model.Pedidos = pedidos
                     .OrderByDescending(pedido => pedido.FechaHora)
                     .Take(14)
                     .Select(MapPedido)
                     .ToList();
+
+                if (ticketPedidoId.HasValue)
+                {
+                    var pedidoParaTicket = pedidos.FirstOrDefault(pedido => pedido.Id == ticketPedidoId.Value);
+                    if (pedidoParaTicket != null)
+                    {
+                        model.TicketParaImprimir = MapTicket(pedidoParaTicket);
+                    }
+                }
 
                 if (model.CajaAbierta)
                 {
@@ -567,6 +689,28 @@ namespace Bodinis.WebApp.Controllers
             }).ToList();
         }
 
+        private async Task<List<CategoriaAdminViewModel>> GetCategoriasAdmin(HttpClient client)
+        {
+            var response = await client.GetAsync("api/categorias");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<CategoriaAdminViewModel>();
+            }
+
+            var categorias = await response.Content.ReadFromJsonAsync<List<CategoriaApiResponse>>(JsonOptions) ?? new List<CategoriaApiResponse>();
+
+            return categorias
+                .OrderBy(categoria => categoria.Nombre)
+                .Select(categoria => new CategoriaAdminViewModel
+                {
+                    Id = categoria.Id,
+                    Nombre = categoria.Nombre,
+                    CantidadProductos = categoria.CantidadProductos
+                })
+                .ToList();
+        }
+
         private async Task<List<MetodoPagoOptionViewModel>> GetMetodosPago(HttpClient client)
         {
             var response = await client.GetAsync("api/metodos-pago");
@@ -616,6 +760,19 @@ namespace Bodinis.WebApp.Controllers
                     CajaId = gasto.CajaId
                 })
                 .ToList();
+        }
+
+        private async Task<int?> TryGetUltimoPedidoCreadoId()
+        {
+            try
+            {
+                var pedidos = await GetPedidos(CreateApiClient());
+                return pedidos.OrderByDescending(pedido => pedido.FechaHora).FirstOrDefault()?.Id;
+            }
+            catch (HttpRequestException)
+            {
+                return null;
+            }
         }
 
         private async Task<CajaEstadoViewModel?> GetCajaActual(HttpClient client)
@@ -715,6 +872,30 @@ namespace Bodinis.WebApp.Controllers
             TempData["PedidosError"] = await ReadApiError(response, fallbackErrorMessage);
         }
 
+        private async Task SetCategoryOperationMessage(HttpResponseMessage response, string successMessage, string fallbackErrorMessage)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["CategoriesSuccess"] = successMessage;
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                TempData["CategoriesError"] = "Tu usuario no tiene permisos para realizar esta accion.";
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                HttpContext.Session.Clear();
+                TempData["CategoriesError"] = "Tu sesion vencio. Vuelve a iniciar sesion.";
+                return;
+            }
+
+            TempData["CategoriesError"] = await ReadApiError(response, fallbackErrorMessage);
+        }
+
         private void SetProductOperationMessage(HttpResponseMessage response, string successMessage, string fallbackErrorMessage)
         {
             if (response.IsSuccessStatusCode)
@@ -790,6 +971,21 @@ namespace Bodinis.WebApp.Controllers
             return HttpContext.Session.GetString("UserName") ?? "Usuario";
         }
 
+        private int? GetTempDataInt(string key)
+        {
+            if (!TempData.TryGetValue(key, out var value) || value == null)
+            {
+                return null;
+            }
+
+            if (value is int number)
+            {
+                return number;
+            }
+
+            return int.TryParse(value.ToString(), out var parsed) ? parsed : null;
+        }
+
         private static IReadOnlyList<AdminNavItemViewModel> BuildNavigation(string activeSection, bool cajaAbierta)
         {
             var items = new List<AdminNavItemViewModel>
@@ -804,6 +1000,7 @@ namespace Bodinis.WebApp.Controllers
                     DisabledReason = "Abre caja para cargar pedidos"
                 },
                 new() { Label = "Productos", Icon = "PR", Action = nameof(Productos) },
+                new() { Label = "Categorias", Icon = "CA", Action = nameof(Categorias) },
                 new() { Label = "Caja", Icon = "CJ", Action = nameof(Caja) }
             };
 
@@ -823,7 +1020,41 @@ namespace Bodinis.WebApp.Controllers
                 FechaHora = pedido.FechaHora,
                 TipoPedido = MapTipoPedido(pedido.TipoPedido),
                 Estado = MapEstadoPedido(pedido.Estado),
-                Total = pedido.Total
+                NombreCliente = pedido.NombreCliente,
+                TelefonoCliente = pedido.TelefonoCliente,
+                DireccionCliente = pedido.DireccionCliente,
+                MetodoPago = pedido.MetodoPago,
+                Total = pedido.Total,
+                Detalles = pedido.Detalles.Select(MapPedidoDetalle).ToList()
+            };
+        }
+
+        private static PedidoTicketViewModel MapTicket(PedidoApiResponse pedido)
+        {
+            return new PedidoTicketViewModel
+            {
+                Id = pedido.Id,
+                FechaHora = pedido.FechaHora,
+                TipoPedido = MapTipoPedido(pedido.TipoPedido),
+                Estado = MapEstadoPedido(pedido.Estado),
+                NombreCliente = pedido.NombreCliente,
+                TelefonoCliente = pedido.TelefonoCliente,
+                DireccionCliente = pedido.DireccionCliente,
+                MetodoPago = pedido.MetodoPago,
+                Total = pedido.Total,
+                Detalles = pedido.Detalles.Select(MapPedidoDetalle).ToList()
+            };
+        }
+
+        private static PedidoDetalleAdminViewModel MapPedidoDetalle(PedidoDetalleApiResponse detalle)
+        {
+            return new PedidoDetalleAdminViewModel
+            {
+                ProductoId = detalle.ProductoId,
+                NombreProducto = detalle.NombreProducto,
+                Cantidad = detalle.Cantidad,
+                PrecioUnitario = detalle.PrecioUnitario,
+                Subtotal = detalle.Subtotal
             };
         }
 
@@ -858,6 +1089,7 @@ namespace Bodinis.WebApp.Controllers
         {
             public int Id { get; set; }
             public string Nombre { get; set; } = string.Empty;
+            public int CantidadProductos { get; set; }
         }
 
         private class MetodoPagoApiResponse
@@ -873,7 +1105,21 @@ namespace Bodinis.WebApp.Controllers
             public DateTime FechaHora { get; set; }
             public int TipoPedido { get; set; }
             public int Estado { get; set; }
+            public string? NombreCliente { get; set; }
+            public string? TelefonoCliente { get; set; }
+            public string? DireccionCliente { get; set; }
+            public string? MetodoPago { get; set; }
             public int Total { get; set; }
+            public List<PedidoDetalleApiResponse> Detalles { get; set; } = new();
+        }
+
+        private class PedidoDetalleApiResponse
+        {
+            public int ProductoId { get; set; }
+            public string NombreProducto { get; set; } = string.Empty;
+            public int Cantidad { get; set; }
+            public int PrecioUnitario { get; set; }
+            public int Subtotal { get; set; }
         }
 
         private class CajaApiResponse
@@ -953,6 +1199,11 @@ namespace Bodinis.WebApp.Controllers
             public string Descripcion { get; set; } = string.Empty;
             public int Monto { get; set; }
             public string? Categoria { get; set; }
+        }
+
+        private class CategoriaApiWriteRequest
+        {
+            public string Nombre { get; set; } = string.Empty;
         }
     }
 }

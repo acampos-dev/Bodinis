@@ -32,6 +32,8 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
                 .Include(p => p.Usuario)
                 .Include(p => p.Detalles)
                     .ThenInclude(d => d.Producto)
+                .Include(p => p.Venta)
+                    .ThenInclude(v => v.MetodoPago)
                 .OrderByDescending(p => p.FechaHora)
                 .ToList();
         }
@@ -48,6 +50,7 @@ namespace Bodinis.Infraestructura.AccesoDatos.EF
                 .Include(p => p.Detalles)
                     .ThenInclude(d => d.Producto)
                 .Include(p => p.Venta)
+                    .ThenInclude(v => v.MetodoPago)
                 .FirstOrDefault(p => p.Id == id);
         }
 

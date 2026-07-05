@@ -11,15 +11,21 @@
     const modeInputs = document.querySelectorAll("input[name='TipoPedido']");
     const categoryButtons = Array.from(document.querySelectorAll("[data-category-filter]"));
     const form = document.querySelector(".order-ticket");
+    const printTicketButton = document.querySelector("[data-print-ticket]");
+    const moneyFormatter = new Intl.NumberFormat("es-UY", {
+        maximumFractionDigits: 0
+    });
     const cart = new Map();
     let activeCategory = "all";
+
+    printTicketButton?.addEventListener("click", () => window.print());
 
     if (!lines || !hiddenFields || !totalEl) {
         return;
     }
 
     function money(value) {
-        return `$ ${value}`;
+        return `$ ${moneyFormatter.format(value)}`;
     }
 
     function appendHidden(name, value) {

@@ -105,6 +105,10 @@ namespace Bodinis.WebApi.Controllers
                 _deleteCategoria.Execute(id);
                 return NoContent();
             }
+            catch (LogicaNegocioException e)
+            {
+                return BadRequest(new { error = e.Message });
+            }
             catch (InfraestructuraException e)
             {
                 return StatusCode(e.StatusCode(), new { error = e.Message });

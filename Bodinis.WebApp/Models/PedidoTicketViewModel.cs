@@ -1,6 +1,6 @@
 namespace Bodinis.WebApp.Models
 {
-    public class PedidoAdminViewModel
+    public class PedidoTicketViewModel
     {
         public int Id { get; set; }
         public DateTime FechaHora { get; set; }
@@ -12,7 +12,6 @@ namespace Bodinis.WebApp.Models
         public string? MetodoPago { get; set; }
         public int Total { get; set; }
         public IReadOnlyList<PedidoDetalleAdminViewModel> Detalles { get; set; } = Array.Empty<PedidoDetalleAdminViewModel>();
-        public bool PuedeEntregar => TipoPedido == "Delivery" && Estado == "Pendiente";
-        public string EstadoCss => Estado == "Entregado" ? "available" : Estado == "Cancelado" ? "unavailable" : "pending";
+        public bool EsDelivery => TipoPedido == "Delivery";
     }
 }

@@ -9,6 +9,8 @@
         .Distinct()
         .OrderBy(categoria => categoria)
         .ToList();
+    var deliveryPendientes = Model.Pedidos.Where(pedido => pedido.PuedeEntregar).ToList();
+    var pedidosRecientes = Model.Pedidos.Where(pedido => !pedido.PuedeEntregar).ToList();
 }
 
 <section class="admin-page-heading">
@@ -33,6 +35,90 @@
     </div>
 }
 
+@if (Model.TicketParaImprimir is { } ticket)
+{
+    <section class="ticket-ready-panel">
+        <div>
+            <p class="admin-kicker">Ticket listo</p>
+            <h3>Pedido #@ticket.Id.ToString("D4") confirmado</h3>
+            <p>@ticket.TipoPedido - @MoneyFormatter.Format(ticket.Total)</p>
+        </div>
+        <button class="admin-primary-action" type="button" data-print-ticket>Imprimir ticket</button>
+    </section>
+
+    <section class="print-ticket" id="pedidoPrintTicket" aria-label="Ticket de pedido">
+        <div class="print-ticket-brand">
+            <img src="~/img/bodinis-logo-ventana.png" alt="Bodinis" />
+            <strong>Bodinis</strong>
+        </div>
+        <div class="print-ticket-head">
+            <h2>Pedido #@ticket.Id.ToString("D4")</h2>
+            <span>@ticket.FechaHora.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+        <dl>
+            <div>
+                <dt>Tipo</dt>
+                <dd>@ticket.TipoPedido</dd>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(ticket.NombreCliente))
+            {
+                <div>
+                    <dt>Cliente</dt>
+                    <dd>@ticket.NombreCliente</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(ticket.TelefonoCliente))
+            {
+                <div>
+                    <dt>Telefono</dt>
+                    <dd>@ticket.TelefonoCliente</dd>
+                </div>
+            }
+            @if (ticket.EsDelivery && !string.IsNullOrWhiteSpace(ticket.DireccionCliente))
+            {
+                <div class="ticket-address">
+                    <dt>Direccion</dt>
+                    <dd>@ticket.DireccionCliente</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(ticket.MetodoPago))
+            {
+                <div>
+                    <dt>Pago</dt>
+                    <dd>@ticket.MetodoPago</dd>
+                </div>
+            }
+        </dl>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var linea in ticket.Detalles)
+                {
+                    <tr>
+                        <td>@linea.NombreProducto</td>
+                        <td>@linea.Cantidad</td>
+                        <td>@MoneyFormatter.Format(linea.Subtotal)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="print-ticket-total">
+            <span>Total</span>
+            <strong>@MoneyFormatter.Format(ticket.Total)</strong>
+        </div>
+        @if (ticket.EsDelivery)
+        {
+            <p class="print-ticket-note">Delivery pendiente de cobro al volver el repartidor.</p>
+        }
+    </section>
+}
+
 @if (!Model.CajaAbierta)
 {
     <section class="cash-first-panel">
@@ -53,7 +139,7 @@ else
         </article>
         <article>
             <span>Total pendiente</span>
-            <strong>$ @Model.TotalPendiente</strong>
+            <strong>@MoneyFormatter.Format(Model.TotalPendiente)</strong>
         </article>
         <article>
             <span>Productos para venta</span>
@@ -65,7 +151,16 @@ else
         </article>
     </section>
 
-    <section class="orders-workspace">
+    <section class="order-builder-panel">
+        <div class="order-builder-heading">
+            <div>
+                <p class="admin-kicker">Nuevo pedido</p>
+                <h3>Tomar pedido</h3>
+            </div>
+            <img src="~/img/bodinis-empanada.png" alt="" aria-hidden="true" />
+        </div>
+
+        <div class="orders-workspace">
         <div class="orders-catalog">
             <div class="admin-table-toolbar">
                 <div>
@@ -106,7 +201,7 @@ else
                                 <strong>@producto.Nombre</strong>
                                 <small>@producto.Categoria - Stock @producto.Stock</small>
                             </span>
-                            <b>$ @producto.Precio</b>
+                            <b>@MoneyFormatter.Format(producto.Precio)</b>
                         </button>
                     }
                 }
@@ -117,88 +212,101 @@ else
             @Html.AntiForgeryToken()
             <div class="order-ticket-header">
                 <div>
-                    <p class="admin-kicker">Nuevo pedido</p>
+                    <p class="admin-kicker">Ticket actual</p>
                     <h3>Ticket</h3>
                 </div>
-                <strong id="pedidoTotal">$ 0</strong>
+                <strong id="pedidoTotal">@MoneyFormatter.Format(0)</strong>
             </div>
 
-            <div class="order-mode" aria-label="Tipo de pedido">
-                <label>
-                    <input type="radio" name="TipoPedido" value="1" checked />
-                    Mostrador
-                </label>
-                <label>
-                    <input type="radio" name="TipoPedido" value="2" />
-                    Delivery
-                </label>
-            </div>
-
-            <div class="admin-form-grid compact">
-                <div class="admin-form-field full">
-                    <label for="NombreCliente">Cliente</label>
-                    <input id="NombreCliente" name="NombreCliente" type="text" placeholder="Nombre opcional" />
-                </div>
-                <div class="admin-form-field">
-                    <label for="TelefonoCliente">Telefono</label>
-                    <input id="TelefonoCliente" name="TelefonoCliente" type="text" placeholder="Telefono" />
-                </div>
-                <div class="admin-form-field" id="orderPaymentField">
-                    <label for="MetodoPagoId">Cobro mostrador</label>
-                    <select id="MetodoPagoId" name="MetodoPagoId">
-                        <option value="">Seleccionar</option>
-                        @foreach (var metodo in Model.MetodosPago)
-                        {
-                            <option value="@metodo.Id">@metodo.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div class="admin-form-field full" id="deliveryAddressField">
-                    <label for="DireccionCliente">Direccion delivery</label>
-                    <input id="DireccionCliente" name="DireccionCliente" type="text" placeholder="Direccion de entrega" />
+            <div class="order-ticket-section">
+                <h4>Tipo</h4>
+                <div class="order-mode" aria-label="Tipo de pedido">
+                    <label>
+                        <input type="radio" name="TipoPedido" value="1" checked />
+                        Mostrador
+                    </label>
+                    <label>
+                        <input type="radio" name="TipoPedido" value="2" />
+                        Delivery
+                    </label>
                 </div>
             </div>
 
-            <div class="order-lines" id="pedidoLines">
-                <div class="order-empty">Agrega productos desde la lista.</div>
+            <div class="order-ticket-section">
+                <h4>Datos</h4>
+                <div class="admin-form-grid compact">
+                    <div class="admin-form-field full">
+                        <label for="NombreCliente">Cliente</label>
+                        <input id="NombreCliente" name="NombreCliente" type="text" placeholder="Nombre opcional" />
+                    </div>
+                    <div class="admin-form-field">
+                        <label for="TelefonoCliente">Telefono</label>
+                        <input id="TelefonoCliente" name="TelefonoCliente" type="text" placeholder="Telefono" />
+                    </div>
+                    <div class="admin-form-field" id="orderPaymentField">
+                        <label for="MetodoPagoId">Cobro mostrador</label>
+                        <select id="MetodoPagoId" name="MetodoPagoId">
+                            <option value="">Seleccionar</option>
+                            @foreach (var metodo in Model.MetodosPago)
+                            {
+                                <option value="@metodo.Id">@metodo.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="admin-form-field full" id="deliveryAddressField">
+                        <label for="DireccionCliente">Direccion delivery</label>
+                        <input id="DireccionCliente" name="DireccionCliente" type="text" placeholder="Direccion de entrega" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-ticket-section">
+                <h4>Productos</h4>
+                <div class="order-lines" id="pedidoLines">
+                    <div class="order-empty">Agrega productos desde la lista.</div>
+                </div>
             </div>
 
             <div id="pedidoHiddenFields"></div>
 
-            <button class="admin-primary-action order-submit" type="submit">Crear pedido</button>
+            <button class="admin-primary-action order-submit" type="submit">Confirmar pedido</button>
         </form>
+        </div>
     </section>
 }
 
-<section class="admin-table-panel orders-history">
-    <div class="admin-table-toolbar">
-        <div>
-            <h3>Pedidos</h3>
-            <p>Ultimos pedidos y entregas pendientes.</p>
+<section class="orders-status-grid">
+    <section class="admin-table-panel orders-history">
+        <div class="admin-table-toolbar">
+            <div>
+                <h3>Delivery pendiente</h3>
+                <p>Pedidos que vuelven con cobro confirmado.</p>
+            </div>
         </div>
-    </div>
 
-    @if (!Model.Pedidos.Any())
-    {
-        <div class="admin-empty-state">No hay pedidos cargados todavia.</div>
-    }
-    else
-    {
-        <div class="orders-card-list">
-            @foreach (var pedido in Model.Pedidos)
-            {
-                <article class="order-history-card @(pedido.PuedeEntregar ? "attention" : null)">
-                    <div class="order-history-main">
-                        <div>
-                            <strong>#@pedido.Id.ToString("D4")</strong>
-                            <span>@pedido.FechaHora.ToString("dd/MM HH:mm") - @pedido.TipoPedido</span>
+        @if (!deliveryPendientes.Any())
+        {
+            <div class="admin-empty-state">No hay deliveries pendientes.</div>
+        }
+        else
+        {
+            <div class="orders-card-list">
+                @foreach (var pedido in deliveryPendientes)
+                {
+                    <article class="order-history-card attention">
+                        <div class="order-history-main">
+                            <div>
+                                <strong>#@pedido.Id.ToString("D4")</strong>
+                                <span>@pedido.FechaHora.ToString("dd/MM HH:mm") - @pedido.TipoPedido</span>
+                                @if (!string.IsNullOrWhiteSpace(pedido.DireccionCliente))
+                                {
+                                    <small>@pedido.DireccionCliente</small>
+                                }
+                            </div>
+                            <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
+                            <b>@MoneyFormatter.Format(pedido.Total)</b>
                         </div>
-                        <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
-                        <b>$ @pedido.Total</b>
-                    </div>
 
-                    @if (pedido.PuedeEntregar)
-                    {
                         <form class="delivery-complete-form" asp-controller="Admin" asp-action="EntregarPedido" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@pedido.Id" />
@@ -209,13 +317,45 @@ else
                                     <option value="@metodo.Id">@metodo.Nombre</option>
                                 }
                             </select>
-                            <button class="admin-primary-action" type="submit">Entregar</button>
+                            <button class="admin-primary-action" type="submit">Entregado</button>
                         </form>
-                    }
-                </article>
-            }
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="admin-table-panel orders-history">
+        <div class="admin-table-toolbar">
+            <div>
+                <h3>Historial reciente</h3>
+                <p>Mostrador cobrado y pedidos ya entregados.</p>
+            </div>
         </div>
-    }
+
+        @if (!pedidosRecientes.Any())
+        {
+            <div class="admin-empty-state">Todavia no hay pedidos cerrados.</div>
+        }
+        else
+        {
+            <div class="orders-card-list">
+                @foreach (var pedido in pedidosRecientes)
+                {
+                    <article class="order-history-card">
+                        <div class="order-history-main">
+                            <div>
+                                <strong>#@pedido.Id.ToString("D4")</strong>
+                                <span>@pedido.FechaHora.ToString("dd/MM HH:mm") - @pedido.TipoPedido</span>
+                            </div>
+                            <span class="status-pill @pedido.EstadoCss">@pedido.Estado</span>
+                            <b>@MoneyFormatter.Format(pedido.Total)</b>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
 </section>
 
 @section Scripts {
